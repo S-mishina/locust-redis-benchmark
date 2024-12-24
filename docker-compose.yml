@@ -1,90 +1,12 @@
 version: '3.8'
 
 services:
-  redis-node1:
-    image: redis:6.2-alpine
-    container_name: redis-node1
-    command:
-      [
-        "redis-server",
-        "--cluster-enabled", "yes",
-        "--cluster-config-file", "/data/nodes.conf",
-        "--cluster-node-timeout", "5000",
-        "--appendonly", "yes",
-        "--bind", "0.0.0.0",
-        "--cluster-announce-ip", "172.21.0.2"
-      ]
-    networks:
-      redis-cluster:
-        ipv4_address: 172.21.0.2
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data1:/data
-
-  redis-node2:
-    image: redis:6.2-alpine
-    container_name: redis-node2
-    command:
-      [
-        "redis-server",
-        "--cluster-enabled", "yes",
-        "--cluster-config-file", "/data/nodes.conf",
-        "--cluster-node-timeout", "5000",
-        "--appendonly", "yes",
-        "--bind", "0.0.0.0",
-        "--cluster-announce-ip", "172.21.0.3"
-      ]
-    networks:
-      redis-cluster:
-        ipv4_address: 172.21.0.3
-    ports:
-      - "6380:6379"
-    volumes:
-      - redis-data2:/data
-
-  redis-node3:
-    image: redis:6.2-alpine
-    container_name: redis-node3
-    command:
-      [
-        "redis-server",
-        "--cluster-enabled", "yes",
-        "--cluster-config-file", "/data/nodes.conf",
-        "--cluster-node-timeout", "5000",
-        "--appendonly", "yes",
-        "--bind", "0.0.0.0",
-        "--cluster-announce-ip", "172.21.0.4"
-      ]
-    networks:
-      redis-cluster:
-        ipv4_address: 172.21.0.4
-    ports:
-      - "6381:6379"
-    volumes:
-      - redis-data3:/data
-
-  redis-init:
-    image: redis:6.2-alpine
-    container_name: redis-init
-    depends_on:
-      - redis-node1
-      - redis-node2
-      - redis-node3
-    entrypoint: ["/bin/sh", "/scripts/init-cluster.sh"]
-    volumes:
-      - ./scripts:/scripts
-    networks:
-      redis-cluster:
-
-volumes:
-  redis-data1:
-  redis-data2:
-  redis-data3:
-
-networks:
   redis-cluster:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.21.0.0/24
+    image: grokzen/redis-cluster:6.2.14
+    ports:
+      - "7100-7105:7100-7105"
+    environment:
+      - "INITIAL_PORT=7100"
+      - "REDIS_CLUSTER_IP=0.0.0.0"
+      - "IP=0.0.0.0"
+      - "BIND_ADDRESS=0.0.0.0"
