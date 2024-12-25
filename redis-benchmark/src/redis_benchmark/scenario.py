@@ -72,7 +72,7 @@ class RedisTaskSet(TaskSet):
                         exception=None,
                     )
                 else:
-                    self.__class__.cache_hits += 1  # キャッシュヒット数を更新
+                    self.__class__.cache_hits += 1
             except Exception as e:
                 self.user.environment.events.request.fire(
                     request_type="Redis",
