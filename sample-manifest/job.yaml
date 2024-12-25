@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: locust-redis-benchmark-redis
+spec:
+  template:
+    spec:
+      initContainers:
+      - name: locust-redis-benchmark-redis-init
+        image: ghcr.io/s-mishina/locust-redis-benchmark:test-ver1
+        command: ["python", "main.py","init","redis","-f","localhost","-p","6379"]
+      containers:
+      - name: locust-redis-benchmark-redis-init
+        image: ghcr.io/s-mishina/locust-redis-benchmark:test-ver1
+        command: ["python", "main.py","init","redis","-f","localhost","-p","6379"]
+      restartPolicy: Never
+  backoffLimit: 0

@@ -5,6 +5,7 @@ import gevent
 from locust.env import Environment
 from locust.runners import LocalRunner
 from scenario import RedisUser
+from utils import generate_string
 from redis.cluster import RedisCluster, ClusterDownError, ClusterNode
 from locust.stats import stats_printer
 from locust.log import setup_logging
@@ -16,6 +17,8 @@ def redis_load_test(args):
     os.environ["REDIS_HOST"] = args.fqdn
     os.environ["REDIS_PORT"] = str(args.port)
     os.environ["HIT_RATE"] = str(args.hit_rate)
+    os.environ["VALUE_SIZE"] = str(args.value_size)
+    os.environ["TTL"] = str(args.ttl)
     env = Environment(user_classes=[RedisUser])
     env.events.request.add_listener(lambda **kwargs: stats_printer(env.stats))
     runner = LocalRunner(env)
@@ -32,6 +35,8 @@ def init_load_test(args):
     os.environ["REDIS_HOST"] = args.fqdn
     os.environ["REDIS_PORT"] = str(args.port)
     os.environ["HIT_RATE"] = str(args.hit_rate)
+    os.environ["VALUE_SIZE"] = str(args.value_size)
+    os.environ["TTL"] = str(args.ttl)
     startup_nodes = [
         ClusterNode(os.environ.get("REDIS_HOST"), os.environ.get("REDIS_PORT"))
     ]
@@ -54,8 +59,7 @@ def init_load_test(args):
         print("Populating cache with 10,000 keys...")
         for i in range(1, 10000):
             key = f"key_{random.randint(1, 10000)}"
-            value = f"value_{i}"
-            redis_client.set(key, value)
+            redis_client.set(key, generate_string(os.environ.get("VALUE_SIZE")), ex=os.environ.get("TTL"))
         print("Success")
     else:
         print("Redis client initialization failed.")
@@ -107,6 +111,20 @@ def add_common_arguments(parser):
         required=False,
         default=1000,
         help="Specify the number of requests to send (default: 1000)."
+    )
+    group.add_argument(
+        "--value-size", "-k",
+        type=int,
+        required=False,
+        default=1,
+        help="Specify the size of the keys in MB (default: 1)."
+    )
+    group.add_argument(
+        "--ttl", "-t",
+        type=int,
+        required=False,
+        default=60,
+        help="Specify the time-to-live for the keys in seconds (default: 60)."
     )
 
 

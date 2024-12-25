@@ -5,7 +5,7 @@ from redis.cluster import RedisCluster, ClusterDownError, ClusterNode
 import random
 import hashlib
 import time
-
+from utils import generate_string
 
 class RedisTaskSet(TaskSet):
     total_requests = 0
@@ -58,7 +58,7 @@ class RedisTaskSet(TaskSet):
                 )
                 if result is None:
                     value = f"value_{random.randint(1, 10000)}"
-                    result = self.redis_client.set(key, value)
+                    result = self.redis_client.set(key, generate_string(os.environ.get("VALUE_SIZE")), ex=os.environ.get("TTL"))
                     self.user.environment.events.request.fire(
                         request_type="Redis",
                         name="set_value",
@@ -94,7 +94,7 @@ class RedisTaskSet(TaskSet):
                     exception=None,
                 )
                 start_time = time.perf_counter()
-                result = self.redis_client.set(hash_value, value)
+                result = self.redis_client.set(key, generate_string(os.environ.get("VALUE_SIZE")), ex=os.environ.get("TTL"))
                 total_time = (time.perf_counter() - start_time) * 1000
                 self.user.environment.events.request.fire(
                     request_type="Redis",
