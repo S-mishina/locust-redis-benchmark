@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   redis-cluster:
-    image: grokzen/redis-cluster:6.2.14
+    image: grokzen/redis-cluster:7.2.5
     ports:
       - "7100-7105:7100-7105"
     environment:
