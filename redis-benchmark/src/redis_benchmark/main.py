@@ -4,7 +4,7 @@ import sys
 import gevent
 from locust.env import Environment
 from locust.runners import LocalRunner
-from redis_benchmark.scenario import RedisUser
+from scenario import RedisUser
 from redis.cluster import RedisCluster, ClusterDownError, ClusterNode
 from locust.stats import stats_printer
 from locust.log import setup_logging
