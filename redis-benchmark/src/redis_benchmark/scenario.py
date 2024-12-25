@@ -19,7 +19,7 @@ class RedisTaskSet(TaskSet):
                 startup_nodes=startup_nodes,
                 decode_responses=True,
                 ssl=False,
-                ssl_cert_reqs=None,
+                ssl_cert_reqs=False,
                 socket_timeout=1
             )
         except ClusterDownError:
@@ -28,11 +28,6 @@ class RedisTaskSet(TaskSet):
         except Exception as e:
             print(f"Unexpected error during Redis initialization: {e}")
             self.redis_client = None
-        print("Populating cache with 10,000 keys...")
-        for i in range(1, 10000):
-            key = f"key_{random.randint(1, 10000)}"
-            value = f"value_{i}"
-            self.redis_client.set(key, value)
     def on_stop(self):
         hit_rate = (self.__class__.cache_hits / self.__class__.total_requests) * 100
         print(f"Total Requests: {self.__class__.total_requests}")
@@ -43,6 +38,10 @@ class RedisTaskSet(TaskSet):
     def cache_scenario(self):
         hit_rate = os.environ.get("HIT_RATE")
         self.__class__.total_requests += 1
+        if self.redis_client is None:
+            print("Redis client is not initialized.")
+            return
+        total_time = 0
         if random.random() < float(hit_rate):
             try:
                 key = f"key_{random.randint(1, 10000)}"
