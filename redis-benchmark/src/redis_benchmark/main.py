@@ -26,7 +26,7 @@ def redis_load_test(args):
     runner = LocalRunner(env)
     RedisUser.host = f"http://{args.fqdn}:{args.port}"
     gevent.spawn(stats_printer(env.stats))
-    runner.start(user_count=args.connections, spawn_rate=args.requests)
+    runner.start(user_count=args.connections, spawn_rate=args.spawn_rate)
     stats_printer(env.stats)
     logger.info("Starting Locust load test...")
     gevent.sleep(args.duration)
@@ -109,18 +109,18 @@ def add_common_arguments(parser):
         help="Specify the number of concurrent connections (default: 1)."
     )
     group.add_argument(
-        "--requests", "-n",
+        "--spawn_rate", "-n",
         type=int,
         required=False,
-        default=1000,
-        help="Specify the number of requests to send (default: 1000)."
+        default=1,
+        help="Specify the number of requests to send (default: 1)."
     )
     group.add_argument(
         "--value-size", "-k",
         type=int,
         required=False,
         default=1,
-        help="Specify the size of the keys in MB (default: 1)."
+        help="Specify the size of the keys in KB (default: 1)."
     )
     group.add_argument(
         "--ttl", "-t",
