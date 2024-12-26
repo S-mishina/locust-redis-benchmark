@@ -57,7 +57,6 @@ class RedisTaskSet(TaskSet):
                     exception=None,
                 )
                 if result is None:
-                    value = f"value_{random.randint(1, 10000)}"
                     result = self.redis_client.set(key, generate_string(os.environ.get("VALUE_SIZE")), ex=os.environ.get("TTL"))
                     self.user.environment.events.request.fire(
                         request_type="Redis",
@@ -79,11 +78,9 @@ class RedisTaskSet(TaskSet):
                     exception=e,
                 )
         else:
-            hash_value = hashlib.sha256(str(time.time_ns()).encode()).hexdigest()
-            value = f"value_{random.randint(1, 10000)}"
             try:
                 start_time = time.perf_counter()
-                result = self.redis_client.get(hash_value)
+                result = self.redis_client.get(key)
                 total_time = (time.perf_counter() - start_time) * 1000
                 self.user.environment.events.request.fire(
                     request_type="Redis",
@@ -94,7 +91,7 @@ class RedisTaskSet(TaskSet):
                     exception=None,
                 )
                 start_time = time.perf_counter()
-                result = self.redis_client.set(key, generate_string(os.environ.get("VALUE_SIZE")), ex=os.environ.get("TTL"))
+                result = self.redis_client.set(key, generate_string(os.environ.get("VALUE_SIZE")), ex=int(os.environ.get("TTL")))
                 total_time = (time.perf_counter() - start_time) * 1000
                 self.user.environment.events.request.fire(
                     request_type="Redis",
