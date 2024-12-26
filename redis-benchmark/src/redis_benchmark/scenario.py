@@ -1,9 +1,9 @@
+import hashlib
 import os
-import time
+import logging
 from locust import HttpUser, TaskSet, task, between
 from redis.cluster import RedisCluster, ClusterDownError, ClusterNode
 import random
-import hashlib
 import time
 from utils import generate_string
 
@@ -12,7 +12,7 @@ class RedisTaskSet(TaskSet):
     cache_hits = 0
     def on_start(self):
         startup_nodes = [
-            ClusterNode(os.environ.get("REDIS_HOST"), os.environ.get("REDIS_PORT"))
+            ClusterNode(os.environ.get("REDIS_HOST"), int(os.environ.get("REDIS_PORT")))
         ]
         try:
             self.redis_client = RedisCluster(
@@ -29,10 +29,14 @@ class RedisTaskSet(TaskSet):
             print(f"Unexpected error during Redis initialization: {e}")
             self.redis_client = None
     def on_stop(self):
-        hit_rate = (self.__class__.cache_hits / self.__class__.total_requests) * 100
-        print(f"Total Requests: {self.__class__.total_requests}")
-        print(f"Cache Hits: {self.__class__.cache_hits}")
-        print(f"Cache Hit Rate: {hit_rate:.2f}%")
+        if self.__class__.total_requests > 0:
+            hit_rate = (self.__class__.cache_hits / self.__class__.total_requests) * 100
+            logging.info(f"Total Requests: {self.__class__.total_requests}")
+            logging.info(f"Cache Hits: {self.__class__.cache_hits}")
+            logging.info(f"Cache Hit Rate: {hit_rate:.2f}%")
+        else:
+            logging.info("Total Requests: 0")
+            logging.info("Cache Hit Rate: N/A")
 
     @task
     def cache_scenario(self):
@@ -77,10 +81,12 @@ class RedisTaskSet(TaskSet):
                     context={},
                     exception=e,
                 )
+                logging.error(f"Error during cache hit: {e}")
         else:
             try:
+                hash_key = hashlib.sha256(str(time.time_ns()).encode()).hexdigest()
                 start_time = time.perf_counter()
-                result = self.redis_client.get(key)
+                result = self.redis_client.get(hash_key)
                 total_time = (time.perf_counter() - start_time) * 1000
                 self.user.environment.events.request.fire(
                     request_type="Redis",
@@ -91,7 +97,7 @@ class RedisTaskSet(TaskSet):
                     exception=None,
                 )
                 start_time = time.perf_counter()
-                result = self.redis_client.set(key, generate_string(os.environ.get("VALUE_SIZE")), ex=int(os.environ.get("TTL")))
+                result = self.redis_client.set(hash_key, generate_string(os.environ.get("VALUE_SIZE")), ex=int(os.environ.get("TTL")))
                 total_time = (time.perf_counter() - start_time) * 1000
                 self.user.environment.events.request.fire(
                     request_type="Redis",
@@ -111,6 +117,7 @@ class RedisTaskSet(TaskSet):
                     context={},
                     exception=e,
                 )
+                logging.error(f"Error during cache hit: {e}")
 
 class RedisUser(HttpUser):
     tasks = [RedisTaskSet]

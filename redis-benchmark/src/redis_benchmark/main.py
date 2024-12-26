@@ -10,8 +10,10 @@ from redis.cluster import RedisCluster, ClusterDownError, ClusterNode
 from locust.stats import stats_printer
 from locust.log import setup_logging
 import random
+import logging
 
 setup_logging("DEBUG", None)
+logger = logging.getLogger(__name__)
 
 def redis_load_test(args):
     os.environ["REDIS_HOST"] = args.fqdn
@@ -26,10 +28,10 @@ def redis_load_test(args):
     gevent.spawn(stats_printer(env.stats))
     runner.start(user_count=args.connections, spawn_rate=args.requests)
     stats_printer(env.stats)
-    print("Starting Locust load test...")
+    logger.info("Starting Locust load test...")
     gevent.sleep(args.duration)
     runner.quit()
-    print("Load test completed.")
+    logger.info("Load test completed.")
 
 def init_load_test(args):
     os.environ["REDIS_HOST"] = args.fqdn
@@ -49,20 +51,20 @@ def init_load_test(args):
             socket_timeout=1
         )
     except ClusterDownError:
-        print("Cluster is down. Retrying...")
+        logger.error("Cluster is down. Retrying...")
         redis_client = None
     except Exception as e:
-        print(f"Unexpected error during Redis initialization: {e}")
+        logger.error(f"Unexpected error during Redis initialization: {e}")
         redis_client = None
     if redis_client is not None:
-        print("Redis client initialized successfully.")
-        print("Populating cache with 10,000 keys...")
+        logger.info("Redis client initialized successfully.")
+        logger.info("Populating cache with 10,000 keys...")
         for i in range(1, 10000):
             key = f"key_{random.randint(1, 10000)}"
             redis_client.set(key, generate_string(os.environ.get("VALUE_SIZE")), ex=int(os.environ.get("TTL")))
-        print("Success")
+        logger.info("Success")
     else:
-        print("Redis client initialization failed.")
+        logger.error("Redis client initialization failed.")
         exit(1)
 
 def add_common_arguments(parser):
@@ -126,8 +128,6 @@ def add_common_arguments(parser):
         default=60,
         help="Specify the time-to-live for the keys in seconds (default: 60)."
     )
-
-
 
 def main():
     parser = argparse.ArgumentParser(
