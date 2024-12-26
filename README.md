@@ -69,5 +69,5 @@ docker run --rm -it ghcr.io/s-mishina/locust-redis-benchmark:latest python redis
 - `--duration, -d`: Test duration in seconds (default: `60`)
 - `--connections, -c`: Number of concurrent connections (default: `1`)
 - `--requests, -n`: Number of requests to send (default: `1000`)
-- `--value-size, -k`: Value size in MB (default: `1`)
+- `--value-size, -k`: Value size in KB (default: `1`)
 - `--ttl, -t`: Time-to-live of the key in seconds (default: `60`)
