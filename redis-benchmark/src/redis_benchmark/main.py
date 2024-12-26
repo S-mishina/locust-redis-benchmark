@@ -59,8 +59,8 @@ def init_load_test(args):
     if redis_client is not None:
         logger.info("Redis client initialized successfully.")
         logger.info("Populating cache with 10,000 keys...")
-        for i in range(1, 10000):
-            key = f"key_{random.randint(1, 10000)}"
+        for i in range(1, 1000):
+            key = f"key_{random.randint(1, 1000)}"
             if redis_client.get(key) is None:
                 redis_client.set(key, generate_string(os.environ.get("VALUE_SIZE")), ex=int(os.environ.get("TTL")))
         logger.info("Success")

@@ -48,7 +48,7 @@ class RedisTaskSet(TaskSet):
         total_time = 0
         if random.random() < float(hit_rate):
             try:
-                key = f"key_{random.randint(1, 10000)}"
+                key = f"key_{random.randint(1, 1000)}"
                 start_time = time.perf_counter()
                 result = self.redis_client.get(key)
                 total_time = (time.perf_counter() - start_time) * 1000
