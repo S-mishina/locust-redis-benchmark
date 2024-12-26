@@ -61,7 +61,8 @@ def init_load_test(args):
         logger.info("Populating cache with 10,000 keys...")
         for i in range(1, 10000):
             key = f"key_{random.randint(1, 10000)}"
-            redis_client.set(key, generate_string(os.environ.get("VALUE_SIZE")), ex=int(os.environ.get("TTL")))
+            if redis_client.get(key) is None:
+                redis_client.set(key, generate_string(os.environ.get("VALUE_SIZE")), ex=int(os.environ.get("TTL")))
         logger.info("Success")
     else:
         logger.error("Redis client initialization failed.")
