@@ -5,4 +5,4 @@ ENV PIP_CACHE_DIR=$PIP_CACHE_DIR
 RUN mkdir -p $PIP_CACHE_DIR
 COPY redis-benchmark/src/redis_benchmark/ ./
 COPY redis-benchmark/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && apt-get install -y gcc && pip install --no-cache-dir -r requirements.txt
