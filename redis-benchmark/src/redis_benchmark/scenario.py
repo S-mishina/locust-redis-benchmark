@@ -58,47 +58,14 @@ class RedisTaskSet(TaskSet):
             return
         total_time = 0
         if random.random() < float(hit_rate):
+            key = f"key_{random.randint(1, 1000)}"
+            start_time = time.perf_counter()
             try:
-                key = f"key_{random.randint(1, 1000)}"
-                start_time = time.perf_counter()
                 result = self.redis_client.get(key)
                 total_time = (time.perf_counter() - start_time) * 1000
                 self.user.environment.events.request.fire(
                     request_type="Redis",
-                    name="get_value",
-                    response_time=total_time,
-                    response_length=0,
-                    context={},
-                    exception=None,
-                )
-                if result is None:
-                    value = generate_string(os.environ.get("VALUE_SIZE"))
-                    ttl = int(os.environ.get("TTL"))
-                    result = self.redis_client.set(key, value, ex=int(ttl))
-                    self.user.environment.events.request.fire(
-                        request_type="Redis",
-                        name="set_value",
-                        response_time=total_time,
-                        response_length=0,
-                        context={},
-                        exception=None,
-                    )
-                    logging.info(f"default: {key} not found in cache. Setting value.")
-                else:
-                    self.__class__.cache_hits += 1
-            except Exception as e:
-                logging.error(f"Error during : {e}")
-        else:
-            try:
-                hash_key = hashlib.sha256(str(time.time_ns()).encode()).hexdigest()
-                logging.info("Cache miss. Setting value. {}".format(hash_key))
-                start_time = time.perf_counter()
-                ttl = int(os.environ.get("TTL"))
-                result = self.redis_client.set(hash_key, generate_string(os.environ.get("VALUE_SIZE")), ex=ttl)
-                total_time = (time.perf_counter() - start_time) * 1000
-                self.user.environment.events.request.fire(
-                    request_type="Redis",
-                    name="set_value",
+                    name="get_value_default",
                     response_time=total_time,
                     response_length=0,
                     context={},
@@ -108,13 +75,85 @@ class RedisTaskSet(TaskSet):
                 total_time = (time.perf_counter() - start_time) * 1000
                 self.user.environment.events.request.fire(
                     request_type="Redis",
-                    name="set_value",
+                    name="get_value_default",
                     response_time=total_time,
                     response_length=0,
                     context={},
                     exception=e,
                 )
                 logging.error(f"Error during cache hit: {e}")
+            if result is None:
+                value = generate_string(os.environ.get("VALUE_SIZE"))
+                ttl = int(os.environ.get("TTL"))
+                try:
+                    result = self.redis_client.set(key, value, ex=int(ttl))
+                    self.user.environment.events.request.fire(
+                        request_type="Redis",
+                        name="set_value_default",
+                        response_time=total_time,
+                        response_length=0,
+                        context={},
+                        exception=None,
+                    )
+                except Exception as e:
+                    self.user.environment.events.request.fire(
+                        request_type="Redis",
+                        name="set_value_default",
+                        response_time=total_time,
+                        response_length=0,
+                        context={},
+                        exception=e,
+                    )
+                    logging.error(f"Error during cache hit: {e}")
+        else:
+            hash_key = hashlib.sha256(str(time.time_ns()).encode()).hexdigest()
+            start_time = time.perf_counter()
+            try:
+                result = self.redis_client.get(hash_key)
+                total_time = (time.perf_counter() - start_time) * 1000
+                self.user.environment.events.request.fire(
+                    request_type="Redis",
+                    name="get_value_dummy",
+                    response_time=total_time,
+                    response_length=0,
+                    context={},
+                    exception=None,
+                )
+            except Exception as e:
+                total_time = (time.perf_counter() - start_time) * 1000
+                self.user.environment.events.request.fire(
+                    request_type="Redis",
+                    name="get_value_dummy",
+                    response_time=total_time,
+                    response_length=0,
+                    context={},
+                    exception=e,
+                )
+                logging.error(f"Error during cache miss: {e}")
+            start_time = time.perf_counter()
+            ttl = int(os.environ.get("TTL"))
+            try:
+                result = self.redis_client.set(hash_key, generate_string(os.environ.get("VALUE_SIZE")), ex=ttl)
+                total_time = (time.perf_counter() - start_time) * 1000
+                self.user.environment.events.request.fire(
+                    request_type="Redis",
+                    name="set_value_dummy",
+                    response_time=total_time,
+                    response_length=0,
+                    context={},
+                    exception=None,
+                )
+            except Exception as e:
+                total_time = (time.perf_counter() - start_time) * 1000
+                self.user.environment.events.request.fire(
+                    request_type="Redis",
+                    name="set_value_dummy",
+                    response_time=total_time,
+                    response_length=0,
+                    context={},
+                    exception=e,
+                )
+                logging.error(f"Error during cache miss: {e}")
 
 class RedisUser(HttpUser):
     tasks = [RedisTaskSet]
