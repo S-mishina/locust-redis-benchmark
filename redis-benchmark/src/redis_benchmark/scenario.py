@@ -91,6 +91,7 @@ class RedisTaskSet(TaskSet):
         else:
             try:
                 hash_key = hashlib.sha256(str(time.time_ns()).encode()).hexdigest()
+                logging.info("Cache miss. Setting value. {}".format(hash_key))
                 start_time = time.perf_counter()
                 ttl = int(os.environ.get("TTL"))
                 result = self.redis_client.set(hash_key, generate_string(os.environ.get("VALUE_SIZE")), ex=ttl)
