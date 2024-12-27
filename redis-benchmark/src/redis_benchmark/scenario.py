@@ -37,7 +37,8 @@ class RedisTaskSet(TaskSet):
             logging.warning(f"Timeout error during Redis initialization: {e}")
         except Exception as e:
             logging.warning(f"Unexpected error during Redis initialization: {e}")
-
+        except ConnectionError as e:
+            logging.warning(f"Connection error: {e}")
     def on_stop(self):
         if self.__class__.total_requests > 0:
             hit_rate = (self.__class__.cache_hits / self.__class__.total_requests) * 100
