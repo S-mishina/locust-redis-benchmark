@@ -129,6 +129,20 @@ def add_common_arguments(parser):
         default=60,
         help="Specify the time-to-live for the keys in seconds (default: 60)."
     )
+    group.add_argument(
+        "--connections-pool", "-l",
+        type=int,
+        required=False,
+        default=1000000,
+        help="Specify the number of connections in the pool (default: 1000000)."
+    )
+    group.add_argument(
+        "--query-timeout", "-q",
+        type=int,
+        required=False,
+        default=1,
+        help="Specify the query timeout in seconds (default: 1)."
+    )
 
 def main():
     parser = argparse.ArgumentParser(
