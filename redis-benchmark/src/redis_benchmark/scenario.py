@@ -27,7 +27,7 @@ class RedisTaskSet(TaskSet):
                 decode_responses=True,
                 timeout=2,
                 ssl=False,
-                max_connections=1000000,
+                max_connections=1000,
                 ssl_cert_reqs=None,
             )
 
@@ -83,32 +83,14 @@ class RedisTaskSet(TaskSet):
                         context={},
                         exception=None,
                     )
+                    logging.info(f"default: {key} not found in cache. Setting value.")
                 else:
                     self.__class__.cache_hits += 1
             except Exception as e:
-                self.user.environment.events.request.fire(
-                    request_type="Redis",
-                    name="get_value",
-                    response_time=total_time,
-                    response_length=0,
-                    context={},
-                    exception=e,
-                )
-                logging.error(f"Error during cache miss: {e}")
+                logging.error(f"Error during : {e}")
         else:
             try:
                 hash_key = hashlib.sha256(str(time.time_ns()).encode()).hexdigest()
-                start_time = time.perf_counter()
-                result = self.redis_client.get(hash_key)
-                total_time = (time.perf_counter() - start_time) * 1000
-                self.user.environment.events.request.fire(
-                    request_type="Redis",
-                    name="get_value",
-                    response_time=total_time,
-                    response_length=0,
-                    context={},
-                    exception=None,
-                )
                 start_time = time.perf_counter()
                 ttl = int(os.environ.get("TTL"))
                 result = self.redis_client.set(hash_key, generate_string(os.environ.get("VALUE_SIZE")), ex=ttl)
