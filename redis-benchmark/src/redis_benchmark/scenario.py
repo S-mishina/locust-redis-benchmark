@@ -27,7 +27,7 @@ class RedisTaskSet(TaskSet):
                 decode_responses=True,
                 timeout=2,
                 ssl=False,
-                max_connections=1000,
+                max_connections=int(os.environ.get("CONNECTIONS_POOL")),
                 ssl_cert_reqs=None,
             )
 

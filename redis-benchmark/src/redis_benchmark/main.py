@@ -21,6 +21,7 @@ def redis_load_test(args):
     os.environ["HIT_RATE"] = str(args.hit_rate)
     os.environ["VALUE_SIZE"] = str(args.value_size)
     os.environ["TTL"] = str(args.ttl)
+    os.environ["CONNECTIONS_POOL"] = str(args.connections_pool)
     env = Environment(user_classes=[RedisUser])
     env.events.request.add_listener(lambda **kwargs: stats_printer(env.stats))
     runner = LocalRunner(env)
@@ -58,7 +59,7 @@ def init_load_test(args):
         redis_client = None
     if redis_client is not None:
         logger.info("Redis client initialized successfully.")
-        logger.info("Populating cache with 10,000 keys...")
+        logger.info("Populating cache with 1,000 keys...")
         for i in range(1, 1000):
             key = f"key_{random.randint(1, 1000)}"
             if redis_client.get(key) is None:
@@ -143,7 +144,13 @@ def add_common_arguments(parser):
         default=1,
         help="Specify the query timeout in seconds (default: 1)."
     )
-
+    group.add_argument(
+        "--set-keys", "-s",
+        type=int,
+        required=False,
+        default=1000,
+        help="Specify the number of keys to set in the cache (default: 1000). ※init redis only parameter"
+    )
 def main():
     parser = argparse.ArgumentParser(
         description="A tool to perform load testing of Redis and other systems."

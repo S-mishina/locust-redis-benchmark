@@ -13,6 +13,10 @@
 
 This tool currently supports Redis (Cluster Mode only).
 
+## Processing Flow
+
+![architecture](./image/architecture.png)
+
 ## Installation
 
 ### Local Machine
