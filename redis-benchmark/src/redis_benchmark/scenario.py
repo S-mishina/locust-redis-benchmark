@@ -2,7 +2,7 @@ import hashlib
 import os
 import logging
 from locust import HttpUser, TaskSet, task, between
-from redis.cluster import RedisCluster, ClusterDownError, ClusterNode, ClusterConnectionPool
+from redis.cluster import RedisCluster, ClusterDownError, ClusterNode
 import random
 import time
 
@@ -22,15 +22,15 @@ class RedisTaskSet(TaskSet):
             ClusterNode(os.environ.get("REDIS_HOST"), int(os.environ.get("REDIS_PORT")))
         ]
         try:
-            connection_pool = ClusterConnectionPool(
+            self.redis_client = RedisCluster(
                 startup_nodes=startup_nodes,
                 decode_responses=True,
-                max_connections=1000,
                 timeout=2,
                 ssl=False,
+                max_connections=1000000,
                 ssl_cert_reqs=None,
             )
-            self.redis_client = RedisCluster(connection_pool=connection_pool)
+
         except ClusterDownError as e:
             logging.warning(f"Cluster is down. Retrying...: {e}")
         except TimeoutError as e:
