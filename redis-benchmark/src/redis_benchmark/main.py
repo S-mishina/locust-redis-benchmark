@@ -7,9 +7,11 @@ from locust.runners import LocalRunner
 from scenario import RedisUser
 from utils import generate_string, init_redis_set, redis_connect, save_results_to_csv
 from locust.stats import stats_printer
+import locust
 import logging
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 def redis_load_test(args):
     os.environ["REDIS_HOST"] = args.fqdn
