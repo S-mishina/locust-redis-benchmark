@@ -16,7 +16,7 @@ def redis_load_test(args):
     os.environ["REDIS_PORT"] = str(args.port)
     os.environ["HIT_RATE"] = str(args.hit_rate)
     os.environ["VALUE_SIZE"] = str(args.value_size)
-    os.environ["TTL"] = int(args.ttl)
+    os.environ["TTL"] = str(args.ttl)
     os.environ["CONNECTIONS_POOL"] = str(args.connections_pool)
     env = Environment(user_classes=[RedisUser])
     env.events.request.add_listener(lambda **kwargs: stats_printer(env.stats))
@@ -38,8 +38,11 @@ def init_load_test(args):
     os.environ["VALUE_SIZE"] = str(args.value_size)
     os.environ["TTL"] = str(args.ttl)
     redis_client = redis_connect()
+    if redis_client is None:
+        logger.error("Redis client initialization failed.")
+        sys.exit(1)
     value = generate_string(args.value_size)
-    init_redis_set(redis_client, value, os.environ["TTL"])
+    init_redis_set(redis_client, value, int(os.environ["TTL"]))
 
 def add_common_arguments(parser):
     """
@@ -123,6 +126,7 @@ def add_common_arguments(parser):
         default=1000,
         help="Specify the number of keys to set in the cache (default: 1000). ※init redis only parameter"
     )
+
 def main():
     parser = argparse.ArgumentParser(
         description="A tool to perform load testing of Redis and other systems."

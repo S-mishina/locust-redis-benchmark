@@ -25,8 +25,16 @@ def redis_connect():
     Returns:
         RedisCluster: Redis cluster connection object.
     """
+    redis_host = os.environ.get("REDIS_HOST")
+    redis_port = os.environ.get("REDIS_PORT")
+    connections_pool = os.environ.get("CONNECTIONS_POOL")
+
+    if not redis_host or not redis_port or not connections_pool:
+        logging.error("Environment variables REDIS_HOST, REDIS_PORT, and CONNECTIONS_POOL must be set.")
+        return None
+
     startup_nodes = [
-        ClusterNode(os.environ.get("REDIS_HOST"), os.environ.get("REDIS_PORT"))
+        ClusterNode(redis_host, int(redis_port))
     ]
     try:
         conn = RedisCluster(
@@ -34,7 +42,7 @@ def redis_connect():
             decode_responses=True,
             timeout=2,
             ssl=False,
-            max_connections=int(os.environ.get("CONNECTIONS_POOL")),
+            max_connections=int(connections_pool),
             ssl_cert_reqs=None,
         )
     except ClusterDownError as e:
