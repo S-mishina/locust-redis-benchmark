@@ -16,7 +16,7 @@ def redis_load_test(args):
     os.environ["REDIS_PORT"] = str(args.port)
     os.environ["HIT_RATE"] = str(args.hit_rate)
     os.environ["VALUE_SIZE"] = str(args.value_size)
-    os.environ["TTL"] = str(args.ttl)
+    os.environ["TTL"] = int(args.ttl)
     os.environ["CONNECTIONS_POOL"] = str(args.connections_pool)
     env = Environment(user_classes=[RedisUser])
     env.events.request.add_listener(lambda **kwargs: stats_printer(env.stats))
