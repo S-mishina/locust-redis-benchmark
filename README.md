@@ -1,7 +1,11 @@
 
-# redis-benchmark
+# locust-redis-benchmark
 
-**redis-benchmark** is a tool designed to test the performance of Redis clusters. It uses Locust for load testing and measures metrics such as response time and cache hit rate for Redis clusters.
+The load testing tool described here builds on the foundational insights provided by the native redis-benchmark tool, which is an excellent utility for measuring Redis throughput and latency under controlled conditions. While redis-benchmark excels at providing raw performance metrics for Redis, this custom solution is designed to extend those capabilities for capacity planning in production-like environments.
+
+By using Locust, this tool simulates realistic workloads with adjustable parameters such as cache hit rates, request rates (get/set req/sec), TTL, and cache sizes. It replicates both cache hit and miss scenarios using random keys, offering a more dynamic testing environment. Additionally, retry logic ensures robustness against temporary errors in the Redis cluster, making it suitable for testing under varying conditions.
+
+This approach complements redis-benchmark by focusing on scenarios that mimic real-world application behaviors. Test results, including total requests, cache hits, and hit rates, provide actionable insights for capacity planning and performance optimization in Redis deployments.
 
 ## Features
 
@@ -19,10 +23,15 @@ This tool currently supports Redis (Cluster Mode only).
 
 ## attention
 
-- About request volume
+- **Role of locust-redis-benchmark**
+  - This tool is designed to simulate request load (get/set req/sec), cache hit rate, cache size, and TTL as expected in a production Redis environment. By applying production-like load over a specific period, it helps in capacity planning and performance evaluation of Redis.
+     - However, to maintain a consistent cache hit rate, this tool sends set requests for the portion of requests outside the cache hit rate (100% - cache hit rate). As a result, the number of cached items may exceed what is typically expected in the actual production environment. Please take this characteristic into account when interpreting test results.
+- **Memory usage and eviction policies**
+  - The increased number of cached items may lead to higher memory usage than expected. Monitor Redis memory consumption and ensure eviction policies are configured appropriately.
+- **About request volume**
   - In the creator's environment, the volume of requests is known to be about 700 req/sec more than the overall expected capacity. (Cache hit rate is the same) Therefore, it is required to take this into account before implementation.
     - In the author's environment, I dropped 700 req/sec and set up connection, and it executed as expected.
-- About this tool
+- **About this tool**
   - This tool uses the init and loadtest commands to achieve load testing. This tool can be executed using workflow, but a dependency between the init and loadtest commands is necessary because if the init is done on a job running in parallel, a useless set for redis will be executed.
 
 ## Installation
