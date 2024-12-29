@@ -7,7 +7,7 @@ import random
 import time
 
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
-from utils import generate_string , redis_connect
+from utils import generate_string , redis_connect , locust_redis_get , locust_redis_set
 
 class RedisTaskSet(TaskSet):
     total_requests = 0
@@ -39,101 +39,18 @@ class RedisTaskSet(TaskSet):
         total_time = 0
         if random.random() < float(hit_rate):
             key = f"key_{random.randint(1, 1000)}"
-            start_time = time.perf_counter()
-            try:
-                result = self.redis_client.get(key)
-                total_time = (time.perf_counter() - start_time) * 1000
-                self.user.environment.events.request.fire(
-                    request_type="Redis",
-                    name="get_value_default",
-                    response_time=total_time,
-                    response_length=0,
-                    context={},
-                    exception=None,
-                )
-            except Exception as e:
-                total_time = (time.perf_counter() - start_time) * 1000
-                self.user.environment.events.request.fire(
-                    request_type="Redis",
-                    name="get_value_default",
-                    response_time=total_time,
-                    response_length=0,
-                    context={},
-                    exception=e,
-                )
-                logging.error(f"Error during cache hit: {e}")
+            result = locust_redis_get(self, self.redis_client, key, "default")
             if result is None:
                 value = generate_string(os.environ.get("VALUE_SIZE"))
                 ttl = int(os.environ.get("TTL"))
-                try:
-                    result = self.redis_client.set(key, value, ex=int(ttl))
-                    self.user.environment.events.request.fire(
-                        request_type="Redis",
-                        name="set_value_default",
-                        response_time=total_time,
-                        response_length=0,
-                        context={},
-                        exception=None,
-                    )
-                except Exception as e:
-                    self.user.environment.events.request.fire(
-                        request_type="Redis",
-                        name="set_value_default",
-                        response_time=total_time,
-                        response_length=0,
-                        context={},
-                        exception=e,
-                    )
-                    logging.error(f"Error during cache hit: {e}")
+                locust_redis_set(self, self.redis_client, key , value , "default", ttl)
         else:
             hash_key = hashlib.sha256(str(time.time_ns()).encode()).hexdigest()
-            start_time = time.perf_counter()
-            try:
-                result = self.redis_client.get(hash_key)
-                total_time = (time.perf_counter() - start_time) * 1000
-                self.user.environment.events.request.fire(
-                    request_type="Redis",
-                    name="get_value_dummy",
-                    response_time=total_time,
-                    response_length=0,
-                    context={},
-                    exception=None,
-                )
-            except Exception as e:
-                total_time = (time.perf_counter() - start_time) * 1000
-                self.user.environment.events.request.fire(
-                    request_type="Redis",
-                    name="get_value_dummy",
-                    response_time=total_time,
-                    response_length=0,
-                    context={},
-                    exception=e,
-                )
-                logging.error(f"Error during cache miss: {e}")
-            start_time = time.perf_counter()
             ttl = int(os.environ.get("TTL"))
-            try:
-                result = self.redis_client.set(hash_key, generate_string(os.environ.get("VALUE_SIZE")), ex=ttl)
-                total_time = (time.perf_counter() - start_time) * 1000
-                self.user.environment.events.request.fire(
-                    request_type="Redis",
-                    name="set_value_dummy",
-                    response_time=total_time,
-                    response_length=0,
-                    context={},
-                    exception=None,
-                )
-            except Exception as e:
-                total_time = (time.perf_counter() - start_time) * 1000
-                self.user.environment.events.request.fire(
-                    request_type="Redis",
-                    name="set_value_dummy",
-                    response_time=total_time,
-                    response_length=0,
-                    context={},
-                    exception=e,
-                )
-                logging.error(f"Error during cache miss: {e}")
+            result = locust_redis_get(self, self.redis_client, hash_key, "dummy")
+            if result is None:
+                value = generate_string(os.environ.get("VALUE_SIZE"))
+                locust_redis_set(self, self.redis_client, hash_key , value , "dummy", ttl)
 
 class RedisUser(HttpUser):
     tasks = [RedisTaskSet]
