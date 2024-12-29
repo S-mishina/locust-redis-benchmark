@@ -37,6 +37,7 @@ def init_load_test(args):
     os.environ["HIT_RATE"] = str(args.hit_rate)
     os.environ["VALUE_SIZE"] = str(args.value_size)
     os.environ["TTL"] = str(args.ttl)
+    os.environ["CONNECTIONS_POOL"] = str(args.connections_pool)
     redis_client = redis_connect()
     if redis_client is None:
         logger.error("Redis client initialization failed.")
