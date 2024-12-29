@@ -22,7 +22,6 @@ def redis_load_test(args):
     os.environ["VALUE_SIZE"] = str(args.value_size)
     os.environ["TTL"] = str(args.ttl)
     os.environ["CONNECTIONS_POOL"] = str(args.connections_pool)
-    os.environ["MAX_VALUE_ITEMS"] = str(args.max_value_items)
     env = Environment(user_classes=[RedisUser])
     env.events.request.add_listener(lambda **kwargs: stats_printer(env.stats))
     runner = LocalRunner(env)
@@ -151,13 +150,6 @@ def add_common_arguments(parser):
         required=False,
         default=1000,
         help="Specify the number of keys to set in the cache (default: 1000). ※init redis only parameter"
-    )
-    group.add_argument(
-        "--max-value-items", "-m",
-        type=int,
-        required=False,
-        default=0,
-        help="Specify the maximum number of items to store in the cache (default: 1000)."
     )
 def main():
     parser = argparse.ArgumentParser(
