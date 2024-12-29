@@ -1,3 +1,4 @@
+import csv
 import time
 from redis.cluster import RedisCluster, ClusterDownError, ClusterNode
 from redis.exceptions import TimeoutError, ConnectionError
@@ -160,3 +161,26 @@ def init_redis_set(redis_client, value, ttl):
     else:
         logging.error("Redis client initialization failed.")
         exit(1)
+
+def save_results_to_csv(stats, filename="test_results.csv"):
+    """
+    Saves the test results to a CSV file.
+
+    Args:
+        stats (Stats): Locust stats object.
+        filename (str): Name of the CSV file to save the results to.
+    """
+    with open(filename, "w", newline="") as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(["Request Name", "Total Requests", "Failures", "Average Response Time",
+                         "Min Response Time", "Max Response Time", "RPS"])
+        for name, entry in stats.entries.items():
+            writer.writerow([
+                name,
+                entry.num_requests,
+                entry.num_failures,
+                entry.avg_response_time,
+                entry.min_response_time,
+                entry.max_response_time,
+                entry.current_rps
+            ])

@@ -5,7 +5,7 @@ import gevent
 from locust.env import Environment
 from locust.runners import LocalRunner
 from scenario import RedisUser
-from utils import generate_string, init_redis_set, redis_connect
+from utils import generate_string, init_redis_set, redis_connect, save_results_to_csv
 from locust.stats import stats_printer
 import logging
 
@@ -29,13 +29,14 @@ def redis_load_test(args):
     gevent.sleep(args.duration)
     runner.quit()
     logger.info("Load test completed.")
+    save_results_to_csv(env.stats, filename="redis_test_results.csv")
 
 def init_load_test(args):
     os.environ["REDIS_HOST"] = args.fqdn
     os.environ["REDIS_PORT"] = str(args.port)
     os.environ["HIT_RATE"] = str(args.hit_rate)
     os.environ["VALUE_SIZE"] = str(args.value_size)
-    os.environ["TTL"] = int(args.ttl)
+    os.environ["TTL"] = str(args.ttl)
     redis_client = redis_connect()
     value = generate_string(args.value_size)
     init_redis_set(redis_client, value, os.environ["TTL"])
