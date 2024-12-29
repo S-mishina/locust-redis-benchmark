@@ -26,7 +26,7 @@ def redis_connect():
         RedisCluster: Redis cluster connection object.
     """
     startup_nodes = [
-        ClusterNode(os.environ.get("REDIS_HOST"), int(os.environ.get("REDIS_PORT")))
+        ClusterNode(os.environ.get("REDIS_HOST"), os.environ.get("REDIS_PORT"))
     ]
     try:
         conn = RedisCluster(
@@ -144,7 +144,7 @@ def locust_redis_set(self, redis_connection, key, value, name, ttl):
 def init_redis_set(redis_client, value, ttl):
     """
     Initializes the Redis cache with a set of keys.
-    
+
     Args:
         redis_client (RedisCluster): Redis cluster connection object.
         value (str): Value to set in Redis.
