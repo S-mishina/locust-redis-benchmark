@@ -84,14 +84,17 @@ docker run --rm -it ghcr.io/s-mishina/locust-redis-benchmark:latest python redis
 
 ## Parameters
 
-- `--fqdn, -f`: Hostname of the Redis server (default: `localhost`)
-- `--port, -p`: Port of the Redis server (default: `6379`)
-- `--hit-rate, -r`: Cache hit rate (default: `0.5`)
-- `--duration, -d`: Test duration in seconds (default: `60`)
-- `--connections, -c`: Number of concurrent connections (default: `1`)
-- `--requests, -n`: Number of requests to send (default: `1000`)
-- `--value-size, -k`: Value size in KB (default: `1`)
-- `--ttl, -t`: Time-to-live of the key in seconds (default: `60`)
+- `--fqdn, -f`: Hostname of the Redis server (default: localhost)
+- `--port, -p`: Port of the Redis server (default: 6379)
+- `--hit-rate, -r`: Cache hit rate (default: 0.5)
+- `--duration, -d`: Test duration in seconds (default: 60)
+- `--connections, -c`: Number of concurrent connections (default: 1)
+- `--spawn-rate, -n`: Number of requests per second (default: 1)
+- `--value-size, -k`: Value size in KB (default: 1)
+- `--ttl, -t`: Time-to-live of the key in seconds (default: 60)
+- `--connections-pool`, -l: Number of connections in the pool (default: 1000000)
+- `--query-timeout, -q`: Query timeout in seconds (default: 1)
+- `--set-keys, -s`: Number of keys to set in the cache (default: 1000) ※ Parameter for init redis only
 
 ## thips
 
