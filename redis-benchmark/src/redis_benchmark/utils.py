@@ -28,6 +28,7 @@ def redis_connect():
     redis_host = os.environ.get("REDIS_HOST")
     redis_port = os.environ.get("REDIS_PORT")
     connections_pool = os.environ.get("CONNECTIONS_POOL")
+    logging.info(f"Connecting to Redis cluster at {redis_host}:{redis_port} with {connections_pool} connections.")
 
     if not redis_host or not redis_port or not connections_pool:
         logging.error("Environment variables REDIS_HOST, REDIS_PORT, and CONNECTIONS_POOL must be set.")
