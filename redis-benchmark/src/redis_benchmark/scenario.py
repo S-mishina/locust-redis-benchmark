@@ -6,17 +6,12 @@ from redis.cluster import ClusterDownError
 import random
 import time
 
-from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
+
 from utils import generate_string , redis_connect , locust_redis_get , locust_redis_set
 
 class RedisTaskSet(TaskSet):
     total_requests = 0
     cache_hits = 0
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_fixed(2),
-        retry=retry_if_exception_type((TimeoutError, ConnectionError, ClusterDownError)),
-    )
     def on_start(self):
         self.redis_client = redis_connect()
     def on_stop(self):

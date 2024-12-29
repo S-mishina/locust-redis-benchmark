@@ -3,7 +3,7 @@ import time
 from redis.cluster import RedisCluster, ClusterDownError, ClusterNode
 import os
 import logging
-
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
 def generate_string(size_in_kb):
     return "A" * (int(size_in_kb) * 1024)
 
@@ -34,6 +34,11 @@ def redis_connect():
         conn = None
     return conn
 
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_fixed(2),
+    retry=retry_if_exception_type((TimeoutError, ConnectionError, ClusterDownError)),
+)
 def locust_redis_get(self, redis_connection, key, name):
     start_time = time.perf_counter()
     try:
@@ -60,6 +65,11 @@ def locust_redis_get(self, redis_connection, key, name):
         logging.error(f"Error during cache hit: {e}")
     return result
 
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_fixed(2),
+    retry=retry_if_exception_type((TimeoutError, ConnectionError, ClusterDownError)),
+)
 def locust_redis_set(self, redis_connection, key , value , name, ttl):
     start_time = time.perf_counter()
     try:
