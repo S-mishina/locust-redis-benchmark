@@ -84,3 +84,16 @@ def locust_redis_set(self, redis_connection, key , value , name, ttl):
         )
         logging.error(f"Error during cache hit: {e}")
         return result
+
+def init_redis_set(redis_client, value, ttl):
+    if redis_client is not None:
+        logging.info("Redis client initialized successfully.")
+        logging.info("Populating cache with 1,000 keys...")
+        for i in range(1, 1000):
+            key = f"key_{i}"
+            if redis_client.get(key) is None:
+                redis_client.set(key, value, ex=int(ttl))
+        logging.info("Success")
+    else:
+        logging.error("Redis client initialization failed.")
+        exit(1)

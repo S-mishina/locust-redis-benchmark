@@ -36,7 +36,6 @@ class RedisTaskSet(TaskSet):
         if self.redis_client is None:
             logging.warning("Redis client is not initialized.")
             return
-        total_time = 0
         if random.random() < float(hit_rate):
             key = f"key_{random.randint(1, 1000)}"
             result = locust_redis_get(self, self.redis_client, key, "default")

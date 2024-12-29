@@ -5,10 +5,8 @@ import gevent
 from locust.env import Environment
 from locust.runners import LocalRunner
 from scenario import RedisUser
-from utils import generate_string
+from utils import generate_string, init_redis_set, redis_connect
 from locust.stats import stats_printer
-from utils import generate_string , redis_connect
-import random
 import logging
 
 setup_logging("DEBUG", None)
@@ -38,19 +36,10 @@ def init_load_test(args):
     os.environ["REDIS_PORT"] = str(args.port)
     os.environ["HIT_RATE"] = str(args.hit_rate)
     os.environ["VALUE_SIZE"] = str(args.value_size)
-    os.environ["TTL"] = str(args.ttl)
+    os.environ["TTL"] = int(args.ttl)
     redis_client = redis_connect()
-    if redis_client is not None:
-        logger.info("Redis client initialized successfully.")
-        logger.info("Populating cache with 1,000 keys...")
-        for i in range(1, 1000):
-            key = f"key_{i}"
-            if redis_client.get(key) is None:
-                redis_client.set(key, generate_string(os.environ.get("VALUE_SIZE")), ex=int(os.environ.get("TTL")))
-        logger.info("Success")
-    else:
-        logger.error("Redis client initialization failed.")
-        exit(1)
+    value = generate_string(args.value_size)
+    init_redis_set(redis_client, value, os.environ["TTL"])
 
 def add_common_arguments(parser):
     """
