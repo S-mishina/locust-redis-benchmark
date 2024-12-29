@@ -96,7 +96,7 @@ docker run --rm -it ghcr.io/s-mishina/locust-redis-benchmark:latest python redis
 - `--query-timeout, -q`: Query timeout in seconds (default: 1)
 - `--set-keys, -s`: Number of keys to set in the cache (default: 1000) ※ Parameter for init redis only
 
-## thips
+## Tips
 
 ### It takes time for cloud vendor metrics to appear during the test
 
