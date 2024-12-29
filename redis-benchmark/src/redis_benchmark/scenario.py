@@ -106,7 +106,10 @@ class RedisTaskSet(TaskSet):
                     )
                     logging.error(f"Error during cache hit: {e}")
         else:
-            hash_key = hashlib.sha256(str(time.time_ns()).encode()).hexdigest()
+            if os.environ.get("MAX_VALUE_ITEMS") < 1:
+                hash_key = hashlib.sha256(str(time.time_ns()).encode()).hexdigest()
+            else:
+                hash_key = f"key_{random.randint(1, int(os.environ.get('MAX_VALUE_ITEMS')))}"
             start_time = time.perf_counter()
             try:
                 result = self.redis_client.get(hash_key)
