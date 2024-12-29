@@ -6,9 +6,8 @@ from locust.env import Environment
 from locust.runners import LocalRunner
 from scenario import RedisUser
 from utils import generate_string
-from redis.cluster import RedisCluster, ClusterDownError, ClusterNode
 from locust.stats import stats_printer
-from locust.log import setup_logging
+from utils import generate_string , redis_connect
 import random
 import logging
 
@@ -40,23 +39,7 @@ def init_load_test(args):
     os.environ["HIT_RATE"] = str(args.hit_rate)
     os.environ["VALUE_SIZE"] = str(args.value_size)
     os.environ["TTL"] = str(args.ttl)
-    startup_nodes = [
-        ClusterNode(os.environ.get("REDIS_HOST"), os.environ.get("REDIS_PORT"))
-    ]
-    try:
-        redis_client = RedisCluster(
-            startup_nodes=startup_nodes,
-            decode_responses=True,
-            ssl=False,
-            ssl_cert_reqs=None,
-            socket_timeout=1
-        )
-    except ClusterDownError:
-        logger.error("Cluster is down. Retrying...")
-        redis_client = None
-    except Exception as e:
-        logger.error(f"Unexpected error during Redis initialization: {e}")
-        redis_client = None
+    redis_client = redis_connect()
     if redis_client is not None:
         logger.info("Redis client initialized successfully.")
         logger.info("Populating cache with 1,000 keys...")

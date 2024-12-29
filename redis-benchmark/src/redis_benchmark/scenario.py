@@ -2,12 +2,12 @@ import hashlib
 import os
 import logging
 from locust import HttpUser, TaskSet, task, between
-from redis.cluster import RedisCluster, ClusterDownError, ClusterNode
+from redis.cluster import ClusterDownError
 import random
 import time
 
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
-from utils import generate_string
+from utils import generate_string , redis_connect
 
 class RedisTaskSet(TaskSet):
     total_requests = 0
@@ -18,27 +18,7 @@ class RedisTaskSet(TaskSet):
         retry=retry_if_exception_type((TimeoutError, ConnectionError, ClusterDownError)),
     )
     def on_start(self):
-        startup_nodes = [
-            ClusterNode(os.environ.get("REDIS_HOST"), int(os.environ.get("REDIS_PORT")))
-        ]
-        try:
-            self.redis_client = RedisCluster(
-                startup_nodes=startup_nodes,
-                decode_responses=True,
-                timeout=2,
-                ssl=False,
-                max_connections=int(os.environ.get("CONNECTIONS_POOL")),
-                ssl_cert_reqs=None,
-            )
-
-        except ClusterDownError as e:
-            logging.warning(f"Cluster is down. Retrying...: {e}")
-        except TimeoutError as e:
-            logging.warning(f"Timeout error during Redis initialization: {e}")
-        except Exception as e:
-            logging.warning(f"Unexpected error during Redis initialization: {e}")
-        except ConnectionError as e:
-            logging.warning(f"Connection error: {e}")
+        self.redis_client = redis_connect()
     def on_stop(self):
         if self.__class__.total_requests > 0:
             hit_rate = (self.__class__.cache_hits / self.__class__.total_requests) * 100
