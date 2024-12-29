@@ -9,7 +9,6 @@ from utils import generate_string, init_redis_set, redis_connect
 from locust.stats import stats_printer
 import logging
 
-setup_logging("DEBUG", None)
 logger = logging.getLogger(__name__)
 
 def redis_load_test(args):
