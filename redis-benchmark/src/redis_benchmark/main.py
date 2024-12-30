@@ -13,6 +13,11 @@ import logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
+@locust.events.init.add_listener
+def on_locust_init(environment, **kwargs):
+    logger.info("Locust environment redis_conn initialized.")
+    environment.redis_conn = redis_connect()
+
 def redis_load_test(args):
     os.environ["REDIS_HOST"] = args.fqdn
     os.environ["REDIS_PORT"] = str(args.port)
@@ -25,6 +30,7 @@ def redis_load_test(args):
     runner = LocalRunner(env)
     RedisUser.host = f"http://{args.fqdn}:{args.port}"
     gevent.spawn(stats_printer(env.stats))
+    locust.events.init.fire(environment=env)
     runner.start(user_count=args.connections, spawn_rate=args.spawn_rate)
     stats_printer(env.stats)
     logger.info("Starting Locust load test...")
