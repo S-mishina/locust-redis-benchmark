@@ -15,7 +15,10 @@ This approach complements redis-benchmark by focusing on scenarios that mimic re
 
 ## Supported Environments
 
-This tool currently supports Redis (Cluster Mode only).
+- redis Cluster
+- valkey Cluster
+
+The above cache service is supported.
 
 ## Processing Flow
 
@@ -23,6 +26,9 @@ This tool currently supports Redis (Cluster Mode only).
 
 ## attention
 
+- **About Scenario Execution Time**
+  - It is recommended to test at least twice as long as the TTL of the data (SET) being stored on the scenario.
+    -  It may not be possible to reproduce the assumed situation unless the cache deletion by TTL is performed at least once in the scenario. (except without ttl).
 - **Role of locust-redis-benchmark**
   - This tool is designed to simulate request load (get/set req/sec), cache hit rate, cache size, and TTL as expected in a production Redis environment. By applying production-like load over a specific period, it helps in capacity planning and performance evaluation of Redis.
      - However, to maintain a consistent cache hit rate, this tool sends set requests for the portion of requests outside the cache hit rate (100% - cache hit rate). As a result, the number of cached items may exceed what is typically expected in the actual production environment. Please take this characteristic into account when interpreting test results.
