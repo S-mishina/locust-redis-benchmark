@@ -5,7 +5,7 @@ import gevent
 from locust.env import Environment
 from locust.runners import LocalRunner
 from scenario import RedisUser
-from utils import generate_string, init_redis_set, redis_connect, save_results_to_csv
+from utils import *
 from locust.stats import stats_printer
 import locust
 import logging
@@ -15,11 +15,17 @@ logging.basicConfig(level=logging.DEBUG)
 
 @locust.events.init.add_listener
 def on_locust_init(environment, **kwargs):
-    #TODO: This is where you decide what connections to put up.
-    logger.info("Locust environment redis_conn initialized.")
-    environment.cache_conn = redis_connect()
+    if kwargs.get('cache_type'):
+        if kwargs.get('cache_type') == "redis_cluster":
+            logger.info("Locust environment redis_conn initialized.")
+            environment.cache_conn = redis_connect()
+        elif kwargs.get('cache_type') == "valkey_cluster":
+            logger.info("Locust environment valkey_conn initialized.")
+            environment.cache_conn = valkey_connect()
+
 
 def redis_load_test(args):
+    # TODO: Make the process here common.(valkey_load_test)
     os.environ["REDIS_HOST"] = args.fqdn
     os.environ["REDIS_PORT"] = str(args.port)
     os.environ["HIT_RATE"] = str(args.hit_rate)
@@ -31,7 +37,28 @@ def redis_load_test(args):
     runner = LocalRunner(env)
     RedisUser.host = f"http://{args.fqdn}:{args.port}"
     gevent.spawn(stats_printer(env.stats))
-    locust.events.init.fire(environment=env)
+    locust.events.init.fire(environment=env,cache_type="redis_cluster")
+    runner.start(user_count=args.connections, spawn_rate=args.spawn_rate)
+    stats_printer(env.stats)
+    logger.info("Starting Locust load test...")
+    gevent.sleep(args.duration)
+    runner.quit()
+    logger.info("Load test completed.")
+    save_results_to_csv(env.stats, filename="redis_test_results.csv")
+
+def valkey_load_test(args):
+    os.environ["REDIS_HOST"] = args.fqdn
+    os.environ["REDIS_PORT"] = str(args.port)
+    os.environ["HIT_RATE"] = str(args.hit_rate)
+    os.environ["VALUE_SIZE"] = str(args.value_size)
+    os.environ["TTL"] = str(args.ttl)
+    os.environ["CONNECTIONS_POOL"] = str(args.connections_pool)
+    env = Environment(user_classes=[RedisUser])
+    env.events.request.add_listener(lambda **kwargs: stats_printer(env.stats))
+    runner = LocalRunner(env)
+    RedisUser.host = f"http://{args.fqdn}:{args.port}"
+    gevent.spawn(stats_printer(env.stats))
+    locust.events.init.fire(environment=env,cache_type="valkey_cluster")
     runner.start(user_count=args.connections, spawn_rate=args.spawn_rate)
     stats_printer(env.stats)
     logger.info("Starting Locust load test...")
