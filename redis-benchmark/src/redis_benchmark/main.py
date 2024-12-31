@@ -15,8 +15,9 @@ logging.basicConfig(level=logging.DEBUG)
 
 @locust.events.init.add_listener
 def on_locust_init(environment, **kwargs):
+    #TODO: This is where you decide what connections to put up.
     logger.info("Locust environment redis_conn initialized.")
-    environment.redis_conn = redis_connect()
+    environment.cache_conn = redis_connect()
 
 def redis_load_test(args):
     os.environ["REDIS_HOST"] = args.fqdn
