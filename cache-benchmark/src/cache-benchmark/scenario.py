@@ -5,7 +5,6 @@ from locust import HttpUser, TaskSet, task, between
 import random
 import time
 
-from utils import generate_string
 from locust_cache import locust_redis_get, locust_redis_set
 
 class RedisTaskSet(TaskSet):

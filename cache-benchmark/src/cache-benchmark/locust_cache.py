@@ -1,6 +1,7 @@
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
-from cash_connect import*
+from cash_connect import *
 import time
+import locust
 
 @retry(
     stop=stop_after_attempt(3),

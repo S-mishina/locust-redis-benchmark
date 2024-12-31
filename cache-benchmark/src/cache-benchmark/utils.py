@@ -1,5 +1,5 @@
 import csv
-from cash_connect import*
+from cash_connect import *
 import logging
 import gevent
 from locust.env import Environment
@@ -80,7 +80,7 @@ def set_env_vars(args):
     os.environ["TTL"] = str(args.ttl)
     os.environ["CONNECTIONS_POOL"] = str(args.connections_pool)
 
-def locust_runner_cash_benchmark():
+def locust_runner_cash_benchmark(args):
     env = Environment(user_classes=[RedisUser])
     env.events.request.add_listener(lambda **kwargs: stats_printer(env.stats))
     runner = LocalRunner(env)

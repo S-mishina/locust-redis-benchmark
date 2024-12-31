@@ -1,7 +1,6 @@
 import argparse
 import os
 import sys
-from scenario import RedisUser
 from utils import *
 from args import *
 from cash_connect import*
@@ -25,11 +24,11 @@ def on_locust_init(environment, **kwargs):
 
 def redis_load_test(args):
     set_env_vars(args)
-    locust_runner_cash_benchmark()
+    locust_runner_cash_benchmark(args)
 
 def valkey_load_test(args):
     set_env_vars(args)
-    locust_runner_cash_benchmark()
+    locust_runner_cash_benchmark(args)
 
 def init_valkey_load_test(args):
     set_env_vars(args)
