@@ -1,5 +1,5 @@
 
-# locust-redis-benchmark
+# locust-cache-benchmark
 
 The load testing tool described here builds on the foundational insights provided by the native [redis-benchmark]([redis-benchmark](https://redis.io/docs/latest/operate/oss_and_stack/management/optimization/benchmarks/)) tool, which is an excellent utility for measuring [Redis](https://redis.io/) & [Valkey](https://valkey.io/) throughput and latency under controlled conditions. While [redis-benchmark](https://redis.io/docs/latest/operate/oss_and_stack/management/optimization/benchmarks/) excels at providing raw performance metrics for [Redis](https://redis.io/), this custom solution is designed to extend those capabilities for capacity planning in production-like environments.
 
@@ -29,7 +29,7 @@ The above cache service is supported.
 - **About Scenario Execution Time**
   - It is recommended to test at least twice as long as the TTL of the data (SET) being stored on the scenario.
     -  It may not be possible to reproduce the assumed situation unless the cache deletion by TTL is performed at least once in the scenario. (except without ttl).
-- **Role of locust-redis-benchmark**
+- **Role of locust-cache-benchmark**
   - This tool is designed to simulate request load (get/set req/sec), cache hit rate, cache size, and TTL as expected in a production Redis environment. By applying production-like load over a specific period, it helps in capacity planning and performance evaluation of Redis.
      - However, to maintain a consistent cache hit rate, this tool sends set requests for the portion of requests outside the cache hit rate (100% - cache hit rate). As a result, the number of cached items may exceed what is typically expected in the actual production environment. Please take this characteristic into account when interpreting test results.
 - **Memory usage and eviction policies**
