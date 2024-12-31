@@ -1,12 +1,14 @@
 import csv
-import time
-from redis.cluster import RedisCluster, ClusterDownError, ClusterNode
-from redis.exceptions import TimeoutError, ConnectionError
-from valkey.cluster import ValkeyCluster as ValkeyCluster, ClusterNode as ValleyClusterNode, ClusterDownError as ValkeyClusterDownError
-from valkey.exceptions import ConnectionError as ValkeyConnectionError, TimeoutError as ValkeyTimeoutError
-import os
+from cash_connect import*
 import logging
-from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
+import gevent
+from locust.env import Environment
+from locust.runners import LocalRunner
+from scenario import RedisUser
+import locust
+from locust.stats import stats_printer
+
+logger = logging.getLogger(__name__)
 
 def generate_string(size_in_kb):
     """
@@ -19,178 +21,6 @@ def generate_string(size_in_kb):
         str: Generated string.
     """
     return "A" * (int(size_in_kb) * 1024)
-
-def redis_connect():
-    """
-    Initializes a connection to the Redis cluster.
-    
-    Returns:
-        RedisCluster: Redis cluster connection object.
-    """
-    redis_host = os.environ.get("REDIS_HOST")
-    redis_port = os.environ.get("REDIS_PORT")
-    connections_pool = os.environ.get("CONNECTIONS_POOL")
-    logging.info(f"Connecting to Redis cluster at {redis_host}:{redis_port} with {connections_pool} connections.")
-
-    if not redis_host or not redis_port or not connections_pool:
-        logging.error("Environment variables REDIS_HOST, REDIS_PORT, and CONNECTIONS_POOL must be set.")
-        return None
-
-    startup_nodes = [
-        ClusterNode(redis_host, int(redis_port))
-    ]
-    try:
-        conn = RedisCluster(
-            startup_nodes=startup_nodes,
-            decode_responses=True,
-            timeout=2,
-            ssl=False,
-            max_connections=int(connections_pool),
-            ssl_cert_reqs=None,
-        )
-    except ClusterDownError as e:
-        logging.warning(f"Cluster is down. Retrying...: {e}")
-        conn = None
-    except TimeoutError as e:
-        logging.warning(f"Timeout error during Redis initialization: {e}")
-        conn = None
-    except ConnectionError as e:
-        logging.warning(f"Connection error: {e}")
-        conn = None
-    except Exception as e:
-        logging.warning(f"Unexpected error during Redis initialization: {e}")
-        conn = None
-    return conn
-
-def valkey_connect():
-    """
-    Initializes a connection to the Valley cluster.
-
-    Returns:
-        ValkeyCluster: Valley cluster connection object.
-    """
-    redis_host = os.environ.get("REDIS_HOST")
-    redis_port = os.environ.get("REDIS_PORT")
-    connections_pool = os.environ.get("CONNECTIONS_POOL")
-    logging.info(f"Connecting to Valley cluster at {redis_host}:{redis_port} with {connections_pool} connections.")
-    if not redis_host or not redis_port or not connections_pool:
-        logging.error("Environment variables REDIS_HOST, REDIS_PORT, and CONNECTIONS_POOL must be set.")
-        return None
-    startup_nodes = [
-        ValleyClusterNode(redis_host, int(redis_port))
-    ]
-    try:
-        conn = ValkeyCluster(
-            startup_nodes=startup_nodes,
-            decode_responses=True,
-            timeout=2,
-            ssl=False,
-            max_connections=int(connections_pool),
-            ssl_cert_reqs=None,
-        )
-    except ValkeyClusterDownError as e:
-        logging.warning(f"Cluster is down. Retrying...: {e}")
-        conn = None
-    except ValkeyTimeoutError as e:
-        logging.warning(f"Timeout error during Valley initialization: {e}")
-        conn = None
-    except ValkeyConnectionError as e:
-        logging.warning(f"Connection error: {e}")
-        conn = None
-    except Exception as e:
-        logging.warning(f"Unexpected error during Valley initialization: {e}")
-        conn = None
-    return conn
-
-@retry(
-    stop=stop_after_attempt(3),
-    wait=wait_fixed(2),
-    retry=retry_if_exception_type((TimeoutError, ConnectionError, ClusterDownError)),
-)
-def locust_redis_get(self, cache_connection, key, name):
-    """
-    Performs a GET operation on the Redis cluster with retry logic.
-    
-    Args:
-        self: Locust task instance.
-        redis_connection (RedisCluster): Redis cluster connection object.
-        key (str): Key to get from Redis.
-        name (str): Name for the request event.
-    
-    Returns:
-        str: Value from Redis.
-    """
-    start_time = time.perf_counter()
-    try:
-        result = cache_connection.get(key)
-        total_time = (time.perf_counter() - start_time) * 1000
-        self.user.environment.events.request.fire(
-            request_type="Redis",
-            name="get_value_{}".format(name),
-            response_time=total_time,
-            response_length=0,
-            context={},
-            exception=None,
-        )
-    except Exception as e:
-        total_time = (time.perf_counter() - start_time) * 1000
-        self.user.environment.events.request.fire(
-            request_type="Redis",
-            name="get_value_{}".format(name),
-            response_time=total_time,
-            response_length=0,
-            context={},
-            exception=e,
-        )
-        logging.error(f"Error during cache hit: {e}")
-        result = None
-    return result
-
-@retry(
-    stop=stop_after_attempt(3),
-    wait=wait_fixed(2),
-    retry=retry_if_exception_type((TimeoutError, ConnectionError, ClusterDownError)),
-)
-def locust_redis_set(self, cache_connection, key, value, name, ttl):
-    """
-    Performs a SET operation on the Redis cluster with retry logic.
-    
-    Args:
-        self: Locust task instance.
-        redis_connection (RedisCluster): Redis cluster connection object.
-        key (str): Key to set in Redis.
-        value (str): Value to set in Redis.
-        name (str): Name for the request event.
-        ttl (int): Time-to-live for the key in seconds.
-    
-    Returns:
-        bool: True if the operation was successful, False otherwise.
-    """
-    start_time = time.perf_counter()
-    try:
-        result = cache_connection.set(key, value, ex=int(ttl))
-        total_time = (time.perf_counter() - start_time) * 1000
-        self.user.environment.events.request.fire(
-            request_type="Redis",
-            name="set_value_{}".format(name),
-            response_time=total_time,
-            response_length=0,
-            context={},
-            exception=None,
-        )
-    except Exception as e:
-        total_time = (time.perf_counter() - start_time) * 1000
-        self.user.environment.events.request.fire(
-            request_type="Redis",
-            name="set_value_{}".format(name),
-            response_time=total_time,
-            response_length=0,
-            context={},
-            exception=e,
-        )
-        logging.error(f"Error during cache set: {e}")
-        result = None
-    return result
 
 def init_cache_set(cache_client, value, ttl):
     """
@@ -235,3 +65,33 @@ def save_results_to_csv(stats, filename="test_results.csv"):
                 entry.max_response_time,
                 entry.current_rps
             ])
+
+def set_env_vars(args):
+    """
+    Sets the environment variables for the test.
+
+    Args:
+        args (Namespace): Command-line arguments.
+    """
+    os.environ["REDIS_HOST"] = args.fqdn
+    os.environ["REDIS_PORT"] = str(args.port)
+    os.environ["HIT_RATE"] = str(args.hit_rate)
+    os.environ["VALUE_SIZE"] = str(args.value_size)
+    os.environ["TTL"] = str(args.ttl)
+    os.environ["CONNECTIONS_POOL"] = str(args.connections_pool)
+
+def locust_runner_cash_benchmark():
+    env = Environment(user_classes=[RedisUser])
+    env.events.request.add_listener(lambda **kwargs: stats_printer(env.stats))
+    runner = LocalRunner(env)
+    RedisUser.host = f"http://{args.fqdn}:{args.port}"
+    gevent.spawn(stats_printer(env.stats))
+    locust.events.init.fire(environment=env,cache_type="valkey_cluster")
+    runner.start(user_count=args.connections, spawn_rate=args.spawn_rate)
+    stats_printer(env.stats)
+    logger.info("Starting Locust load test...")
+    gevent.sleep(args.duration)
+    runner.quit()
+    logger.info("Load test completed.")
+    save_results_to_csv(env.stats, filename="redis_test_results.csv")
+
