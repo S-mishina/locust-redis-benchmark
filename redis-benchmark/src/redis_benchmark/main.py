@@ -67,19 +67,33 @@ def valkey_load_test(args):
     logger.info("Load test completed.")
     save_results_to_csv(env.stats, filename="redis_test_results.csv")
 
-def init_load_test(args):
+def init_valkey_load_test(args):
     os.environ["REDIS_HOST"] = args.fqdn
     os.environ["REDIS_PORT"] = str(args.port)
     os.environ["HIT_RATE"] = str(args.hit_rate)
     os.environ["VALUE_SIZE"] = str(args.value_size)
     os.environ["TTL"] = str(args.ttl)
     os.environ["CONNECTIONS_POOL"] = str(args.connections_pool)
-    redis_client = redis_connect()
-    if redis_client is None:
+    cache_client = valkey_connect()
+    if cache_client is None:
         logger.error("Redis client initialization failed.")
         sys.exit(1)
     value = generate_string(args.value_size)
-    init_redis_set(redis_client, value, int(os.environ["TTL"]))
+    init_cache_set(cache_client, value, int(os.environ["TTL"]))
+
+def init_redis_load_test(args):
+    os.environ["REDIS_HOST"] = args.fqdn
+    os.environ["REDIS_PORT"] = str(args.port)
+    os.environ["HIT_RATE"] = str(args.hit_rate)
+    os.environ["VALUE_SIZE"] = str(args.value_size)
+    os.environ["TTL"] = str(args.ttl)
+    os.environ["CONNECTIONS_POOL"] = str(args.connections_pool)
+    cache_client = redis_connect()
+    if cache_client is None:
+        logger.error("Redis client initialization failed.")
+        sys.exit(1)
+    value = generate_string(args.value_size)
+    init_cache_set(cache_client, value, int(os.environ["TTL"]))
 
 def add_common_arguments(parser):
     """
@@ -172,15 +186,25 @@ def main():
 
     loadtest_parser = subparsers.add_parser("loadtest", help="Load testing commands")
     loadtest_subparsers = loadtest_parser.add_subparsers(dest="subcommand")
+
     redis_parser = loadtest_subparsers.add_parser("redis", help="Run load test on Redis")
     add_common_arguments(redis_parser)
     redis_parser.set_defaults(func=redis_load_test)
 
+    valkey_parser = loadtest_subparsers.add_parser("valkey", help="Run load test on valkey")
+    add_common_arguments(valkey_parser)
+    redis_parser.set_defaults(func=valkey_load_test)
+
     init_parser = subparsers.add_parser("init", help="Initialization commands")
     init_subparsers = init_parser.add_subparsers(dest="subcommand")
+
     init_redis_parser = init_subparsers.add_parser("redis", help="Initialize Redis")
     add_common_arguments(init_redis_parser)
-    init_redis_parser.set_defaults(func=init_load_test)
+    init_redis_parser.set_defaults(func=init_redis_load_test)
+
+    init_valkey_parser = init_subparsers.add_parser("valkey", help="Initialize valkey")
+    add_common_arguments(init_valkey_parser)
+    init_valkey_parser.set_defaults(func=init_valkey_load_test)
 
     args = parser.parse_args()
 

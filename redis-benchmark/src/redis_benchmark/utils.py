@@ -192,25 +192,25 @@ def locust_redis_set(self, cache_connection, key, value, name, ttl):
         result = None
     return result
 
-def init_redis_set(redis_client, value, ttl):
+def init_cache_set(cache_client, value, ttl):
     """
     Initializes the Redis cache with a set of keys.
 
     Args:
-        redis_client (RedisCluster): Redis cluster connection object.
+        cache_client (RedisCluster): Redis cluster connection object.
         value (str): Value to set in Redis.
         ttl (int): Time-to-live for the keys in seconds.
     """
-    if redis_client is not None:
+    if cache_client is not None:
         logging.info("Redis client initialized successfully.")
         logging.info("Populating cache with 1,000 keys...")
         for i in range(1, 1000):
             key = f"key_{i}"
-            if redis_client.get(key) is None:
-                redis_client.set(key, value, ex=int(ttl))
+            if cache_client.get(key) is None:
+                cache_client.set(key, value, ex=int(ttl))
         logging.info("Success")
     else:
-        logging.error("Redis client initialization failed.")
+        logging.error("Cache client initialization failed.")
         exit(1)
 
 def save_results_to_csv(stats, filename="test_results.csv"):
