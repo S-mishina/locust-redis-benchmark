@@ -5,6 +5,7 @@ from utils import *
 from args import *
 from cash_connect import*
 from locust.stats import stats_printer
+from scenario import RedisUser
 import locust
 import logging
 
@@ -24,11 +25,11 @@ def on_locust_init(environment, **kwargs):
 
 def redis_load_test(args):
     set_env_vars(args)
-    locust_runner_cash_benchmark(args)
+    locust_runner_cash_benchmark(args,RedisUser)
 
 def valkey_load_test(args):
     set_env_vars(args)
-    locust_runner_cash_benchmark(args)
+    locust_runner_cash_benchmark(args,RedisUser)
 
 def init_valkey_load_test(args):
     set_env_vars(args)

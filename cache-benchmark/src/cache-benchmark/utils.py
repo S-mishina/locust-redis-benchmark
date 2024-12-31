@@ -4,7 +4,6 @@ import logging
 import gevent
 from locust.env import Environment
 from locust.runners import LocalRunner
-from scenario import RedisUser
 import locust
 from locust.stats import stats_printer
 
@@ -80,7 +79,7 @@ def set_env_vars(args):
     os.environ["TTL"] = str(args.ttl)
     os.environ["CONNECTIONS_POOL"] = str(args.connections_pool)
 
-def locust_runner_cash_benchmark(args):
+def locust_runner_cash_benchmark(args,RedisUser):
     env = Environment(user_classes=[RedisUser])
     env.events.request.add_listener(lambda **kwargs: stats_printer(env.stats))
     runner = LocalRunner(env)
