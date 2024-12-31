@@ -1,5 +1,5 @@
 import csv
-from cash_connect import *
+import os
 import logging
 import gevent
 from locust.env import Environment
@@ -93,4 +93,3 @@ def locust_runner_cash_benchmark(args,RedisUser):
     runner.quit()
     logger.info("Load test completed.")
     save_results_to_csv(env.stats, filename="redis_test_results.csv")
-
