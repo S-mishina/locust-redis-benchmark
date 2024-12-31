@@ -1,22 +1,22 @@
 
 # locust-redis-benchmark
 
-The load testing tool described here builds on the foundational insights provided by the native redis-benchmark tool, which is an excellent utility for measuring Redis throughput and latency under controlled conditions. While redis-benchmark excels at providing raw performance metrics for Redis, this custom solution is designed to extend those capabilities for capacity planning in production-like environments.
+The load testing tool described here builds on the foundational insights provided by the native [redis-benchmark]([redis-benchmark](https://redis.io/docs/latest/operate/oss_and_stack/management/optimization/benchmarks/)) tool, which is an excellent utility for measuring [Redis](https://redis.io/) throughput and latency under controlled conditions. While [redis-benchmark](https://redis.io/docs/latest/operate/oss_and_stack/management/optimization/benchmarks/) excels at providing raw performance metrics for [Redis](https://redis.io/), this custom solution is designed to extend those capabilities for capacity planning in production-like environments.
 
-By using Locust, this tool simulates realistic workloads with adjustable parameters such as cache hit rates, request rates (get/set req/sec), TTL, and cache sizes. It replicates both cache hit and miss scenarios using random keys, offering a more dynamic testing environment. Additionally, retry logic ensures robustness against temporary errors in the Redis cluster, making it suitable for testing under varying conditions.
+By using Locust, this tool simulates realistic workloads with adjustable parameters such as cache hit rates, request rates (get/set req/sec), TTL, and cache sizes. It replicates both cache hit and miss scenarios using random keys, offering a more dynamic testing environment. Additionally, retry logic ensures robustness against temporary errors in the [Redis](https://redis.io/) cluster, making it suitable for testing under varying conditions.
 
-This approach complements redis-benchmark by focusing on scenarios that mimic real-world application behaviors. Test results, including total requests, cache hits, and hit rates, provide actionable insights for capacity planning and performance optimization in Redis deployments.
+This approach complements [redis-benchmark](https://redis.io/docs/latest/operate/oss_and_stack/management/optimization/benchmarks/) by focusing on scenarios that mimic real-world application behaviors. Test results, including total requests, cache hits, and hit rates, provide actionable insights for capacity planning and performance optimization in [Redis](https://redis.io/) deployments.
 
 ## Features
 
-- Executes load tests on Redis clusters
+- Executes load tests on [Redis](https://redis.io/) clusters
 - Allows configuration of parameters such as cache hit rate, value size, and TTL
 - Displays test results in real-time
 
 ## Supported Environments
 
-- redis Cluster
-- valkey Cluster
+- [Redis](https://redis.io/) Cluster
+- [Valkey](https://valkey.io/) Cluster
 
 The above cache service is supported.
 
@@ -24,7 +24,7 @@ The above cache service is supported.
 
 ![architecture](./image/architecture.png)
 
-## attention
+## Attention
 
 - **About Scenario Execution Time**
   - It is recommended to test at least twice as long as the TTL of the data (SET) being stored on the scenario.
