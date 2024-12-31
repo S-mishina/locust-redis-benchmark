@@ -107,7 +107,7 @@ def valkey_connect():
     wait=wait_fixed(2),
     retry=retry_if_exception_type((TimeoutError, ConnectionError, ClusterDownError)),
 )
-def locust_redis_get(self, redis_connection, key, name):
+def locust_redis_get(self, cache_connection, key, name):
     """
     Performs a GET operation on the Redis cluster with retry logic.
     
@@ -122,7 +122,7 @@ def locust_redis_get(self, redis_connection, key, name):
     """
     start_time = time.perf_counter()
     try:
-        result = redis_connection.get(key)
+        result = cache_connection.get(key)
         total_time = (time.perf_counter() - start_time) * 1000
         self.user.environment.events.request.fire(
             request_type="Redis",
@@ -151,7 +151,7 @@ def locust_redis_get(self, redis_connection, key, name):
     wait=wait_fixed(2),
     retry=retry_if_exception_type((TimeoutError, ConnectionError, ClusterDownError)),
 )
-def locust_redis_set(self, redis_connection, key, value, name, ttl):
+def locust_redis_set(self, cache_connection, key, value, name, ttl):
     """
     Performs a SET operation on the Redis cluster with retry logic.
     
@@ -168,7 +168,7 @@ def locust_redis_set(self, redis_connection, key, value, name, ttl):
     """
     start_time = time.perf_counter()
     try:
-        result = redis_connection.set(key, value, ex=int(ttl))
+        result = cache_connection.set(key, value, ex=int(ttl))
         total_time = (time.perf_counter() - start_time) * 1000
         self.user.environment.events.request.fire(
             request_type="Redis",
