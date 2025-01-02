@@ -1,7 +1,8 @@
 import os
 import unittest
 from unittest.mock import Mock
-from cache_benchmark.src.cache_benchmark.utils import generate_string, init_cache_set, set_env_vars
+from cache_benchmark.utils import generate_string, init_cache_set, set_env_vars
+
 
 class TestUtils(unittest.TestCase):
     def test_generate_string(self):

@@ -2,8 +2,8 @@ import hashlib
 import os
 import logging
 from locust import HttpUser, TaskSet, task, between
-from cache_benchmark.src.cache_benchmark.locust_cache import LocustCache
-from cache_benchmark.src.cache_benchmark.utils import *
+from cache_benchmark.locust_cache import LocustCache
+from cache_benchmark.utils import *
 import random
 import time
 

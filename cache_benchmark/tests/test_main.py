@@ -1,13 +1,13 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import sys
-from cache_benchmark.src.cache_benchmark.main import main, redis_load_test, valkey_load_test, init_redis_load_test, init_valkey_load_test
-from cache_benchmark.src.cache_benchmark.scenario import RedisUser
+from cache_benchmark.main import main, redis_load_test, valkey_load_test, init_redis_load_test, init_valkey_load_test
+from cache_benchmark.scenario import RedisUser
 
 class TestMain(unittest.TestCase):
 
-    @patch('cache_benchmark.src.cache_benchmark.main.set_env_vars')
-    @patch('cache_benchmark.src.cache_benchmark.main.locust_runner_cash_benchmark')
+    @patch('cache_benchmark.main.set_env_vars')
+    @patch('cache_benchmark.main.locust_runner_cash_benchmark')
     def test_redis_load_test(self, mock_locust_runner, mock_set_env_vars):
         '''
         Test redis_load_test function
@@ -23,8 +23,8 @@ class TestMain(unittest.TestCase):
         mock_set_env_vars.assert_called_once_with(args)
         mock_locust_runner.assert_called_once_with(args, RedisUser)
 
-    @patch('cache_benchmark.src.cache_benchmark.main.set_env_vars')
-    @patch('cache_benchmark.src.cache_benchmark.main.locust_runner_cash_benchmark')
+    @patch('cache_benchmark.main.set_env_vars')
+    @patch('cache_benchmark.main.locust_runner_cash_benchmark')
     def test_valkey_load_test(self, mock_locust_runner, mock_set_env_vars):
         '''
         Test valkey_load_test function
@@ -40,10 +40,10 @@ class TestMain(unittest.TestCase):
         mock_set_env_vars.assert_called_once_with(args)
         mock_locust_runner.assert_called_once_with(args, RedisUser)
 
-    @patch('cache_benchmark.src.cache_benchmark.main.set_env_vars')
-    @patch('cache_benchmark.src.cache_benchmark.main.CacheConnect.valkey_connect')
-    @patch('cache_benchmark.src.cache_benchmark.main.generate_string')
-    @patch('cache_benchmark.src.cache_benchmark.main.init_cache_set')
+    @patch('cache_benchmark.main.set_env_vars')
+    @patch('cache_benchmark.main.CacheConnect.valkey_connect')
+    @patch('cache_benchmark.main.generate_string')
+    @patch('cache_benchmark.main.init_cache_set')
     @patch.dict('os.environ', {'TTL': '60'})
     def test_init_valkey_load_test_success(self, mock_init_cache_set, mock_generate_string, mock_valkey_connect, mock_set_env_vars):
         '''
@@ -66,10 +66,10 @@ class TestMain(unittest.TestCase):
         mock_generate_string.assert_called_once_with(args.value_size)
         mock_init_cache_set.assert_called_once_with(mock_valkey_connect.return_value, "test_value", 60)
 
-    @patch('cache_benchmark.src.cache_benchmark.main.set_env_vars')
-    @patch('cache_benchmark.src.cache_benchmark.main.CacheConnect.redis_connect')
-    @patch('cache_benchmark.src.cache_benchmark.main.generate_string')
-    @patch('cache_benchmark.src.cache_benchmark.main.init_cache_set')
+    @patch('cache_benchmark.main.set_env_vars')
+    @patch('cache_benchmark.main.CacheConnect.redis_connect')
+    @patch('cache_benchmark.main.generate_string')
+    @patch('cache_benchmark.main.init_cache_set')
     @patch.dict('os.environ', {'TTL': '60'})
     def test_init_redis_load_test_success(self, mock_init_cache_set, mock_generate_string, mock_redis_connect, mock_set_env_vars):
         '''
@@ -93,7 +93,7 @@ class TestMain(unittest.TestCase):
         mock_init_cache_set.assert_called_once_with(mock_redis_connect.return_value, "test_value", 60)
 
     @patch('argparse.ArgumentParser.parse_args')
-    @patch('cache_benchmark.src.cache_benchmark.main.sys.exit')
+    @patch('cache_benchmark.main.sys.exit')
     def test_main_no_args(self, mock_exit, mock_parse_args):
         '''
         Test main function with no arguments
