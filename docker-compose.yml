@@ -10,3 +10,15 @@ services:
       - "REDIS_CLUSTER_IP=0.0.0.0"
       - "IP=0.0.0.0"
       - "BIND_ADDRESS=0.0.0.0"
+    restart: "no"
+
+  locust:
+    image: ghcr.io/s-mishina/locust-redis-benchmark:latest
+    depends_on:
+      - redis-cluster
+    command: >
+      bash -c "sleep 10 &&
+              ls &&
+               python cache_benchmark/src/cache_benchmark/main.py init redis -f redis-cluster -p 7100 &&
+               python cache_benchmark/src/cache_benchmark/main.py loadtest redis -f redis-cluster -p 7100 -r 0.5 -d 60 -c 100 -n 100 -k 1 -t 60"
+    restart: "no"
