@@ -81,6 +81,16 @@ def set_env_vars(args):
     os.environ["SSL"] = bool(args.ssl)
     os.environ["QUERY_TIMEOUT"] = str(args.query_timeout)
 
+def set_env_cache_retry(args):
+    """
+    Sets the environment variables for the cache.
+
+    Args:
+        args (Namespace): Command-line arguments.
+    """
+    os.environ["cache_retry"] = int(args.cache_retry)
+    os.environ["cache_retry_delay"] = int(args.cache_retry_delay)
+
 def locust_runner_cash_benchmark(args,RedisUser):
     env = Environment(user_classes=[RedisUser])
     env.events.request.add_listener(lambda **kwargs: stats_printer(env.stats))

@@ -81,11 +81,18 @@ def add_common_arguments(parser):
         help="Specify the number of connections in the pool (default: 1000000)."
     )
     group.add_argument(
-        "--query-timeout", "-q",
+        "--retry-count", "-rc",
         type=int,
         required=False,
-        default=1,
-        help="Specify the query timeout in seconds (default: 1)."
+        default=3,
+        help="Specify the number of retries in case of failure (default: 3)."
+    )
+    group.add_argument(
+        "--retry-wait", "-rw",
+        type=int,
+        required=False,
+        default=2,
+        help="Specify the wait time between retries in seconds (default: 2)."
     )
     group.add_argument(
         "--set-keys", "-s",

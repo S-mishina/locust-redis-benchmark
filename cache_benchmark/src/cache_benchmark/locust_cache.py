@@ -2,11 +2,12 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fi
 from redis.exceptions import ClusterDownError
 import time
 import logging
+import os
 
 class LocustCache:
     @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_fixed(2),
+        stop=stop_after_attempt(int(os.environ.get("RETRY_ATTEMPTS", 3))),
+        wait=wait_fixed(int(os.environ.get("RETRY_WAIT", 5))),
         retry=retry_if_exception_type((TimeoutError, ConnectionError, ClusterDownError)),
     )
     def locust_redis_get(self, cache_connection, key, name):
@@ -49,8 +50,8 @@ class LocustCache:
         return result
 
     @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_fixed(2),
+        stop=stop_after_attempt(int(os.environ.get("RETRY_ATTEMPTS", 3))),
+        wait=wait_fixed(int(os.environ.get("RETRY_WAIT", 5))),
         retry=retry_if_exception_type((TimeoutError, ConnectionError, ClusterDownError)),
     )
     def locust_redis_set(self, cache_connection, key, value, name, ttl):

@@ -25,14 +25,17 @@ def on_locust_init(environment, **kwargs):
 
 def redis_load_test(args):
     set_env_vars(args)
+    set_env_cache_retry(args)
     locust_runner_cash_benchmark(args,RedisUser)
 
 def valkey_load_test(args):
     set_env_vars(args)
+    set_env_cache_retry(args)
     locust_runner_cash_benchmark(args,RedisUser)
 
 def init_valkey_load_test(args):
     set_env_vars(args)
+    set_env_cache_retry(args)
     cache_client = CacheConnect.valkey_connect()
     if cache_client is None:
         logger.error("Redis client initialization failed.")
@@ -42,6 +45,7 @@ def init_valkey_load_test(args):
 
 def init_redis_load_test(args):
     set_env_vars(args)
+    set_env_cache_retry(args)
     cache_client = CacheConnect.redis_connect()
     if cache_client is None:
         logger.error("Redis client initialization failed.")
