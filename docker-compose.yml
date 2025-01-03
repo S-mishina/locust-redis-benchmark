@@ -16,8 +16,6 @@ services:
     image: ghcr.io/s-mishina/locust-redis-benchmark:latest
     depends_on:
       - redis-cluster
-    environment:
-      - PYTHONPATH=cache_benchmark/src
     command: >
       bash -c "sleep 10 &&
               ls &&
