@@ -2,7 +2,7 @@
 import argparse
 import os
 import sys
-from cache_benchmark.utils import set_env_vars, set_env_cache_retry, generate_string, init_cache_set
+from cache_benchmark.utils import set_env_vars, set_env_cache_retry, generate_string, init_cache_set, locust_runner_cash_benchmark
 from cache_benchmark.args import add_common_arguments
 from cache_benchmark.cash_connect import CacheConnect
 from cache_benchmark.scenario import RedisUser
