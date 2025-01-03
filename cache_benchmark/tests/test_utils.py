@@ -17,6 +17,7 @@ class TestUtils(unittest.TestCase):
         args.value_size = 1024
         args.ttl = 60
         args.connections_pool = 10
+        args.ssl = "False"
 
         set_env_vars(args)
 
@@ -26,6 +27,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(os.environ["VALUE_SIZE"], "1024")
         self.assertEqual(os.environ["TTL"], "60")
         self.assertEqual(os.environ["CONNECTIONS_POOL"], "10")
+        self.assertEqual(os.environ["SSL"] , "False")
 
     def test_init_cache_set(self):
         cache_client = Mock()

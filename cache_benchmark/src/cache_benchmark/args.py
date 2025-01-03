@@ -19,7 +19,7 @@ def add_common_arguments(parser):
     )
     group.add_argument(
         "--ssl", "-x",
-        type=bool,
+        type=str,
         required=False,
         default=False,
         help="Use SSL for the connection."
