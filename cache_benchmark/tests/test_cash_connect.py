@@ -15,50 +15,50 @@ class TestCashConnect(unittest.TestCase):
 
     def test_redis_connect_missing_env_vars(self):
         self.tearDown()
-        conn = CacheConnect.redis_connect()
+        conn = CacheConnect.redis_connect(self)
         self.assertIsNone(conn)
 
     def test_redis_connect_cluster_down_error(self):
         with patch("redis.cluster.RedisCluster", side_effect=ClusterDownError):
-            conn = CacheConnect.redis_connect()
+            conn = CacheConnect.redis_connect(self)
             self.assertIsNone(conn)
 
     def test_redis_connect_timeout_error(self):
         with patch("redis.cluster.RedisCluster", side_effect=TimeoutError):
-            conn = CacheConnect.redis_connect()
+            conn = CacheConnect.redis_connect(self)
             self.assertIsNone(conn)
 
     def test_redis_connect_connection_error(self):
         with patch("redis.cluster.RedisCluster", side_effect=ConnectionError):
-            conn = CacheConnect.redis_connect()
+            conn = CacheConnect.redis_connect(self)
             self.assertIsNone(conn)
 
     def test_redis_connect_unexpected_error(self):
         with patch("redis.cluster.RedisCluster", side_effect=Exception):
-            conn = CacheConnect.redis_connect()
+            conn = CacheConnect.redis_connect(self)
             self.assertIsNone(conn)
 
     def test_valkey_connect_missing_env_vars(self):
         self.tearDown()
-        conn = CacheConnect.valkey_connect()
+        conn = CacheConnect.valkey_connect(self)
         self.assertIsNone(conn)
 
     def test_valkey_connect_cluster_down_error(self):
         with patch("valkey.cluster.ValkeyCluster", side_effect=ValkeyClusterDownError):
-            conn = CacheConnect.valkey_connect()
+            conn = CacheConnect.valkey_connect(self)
             self.assertIsNone(conn)
 
     def test_valkey_connect_timeout_error(self):
         with patch("valkey.cluster.ValkeyCluster", side_effect=ValkeyTimeoutError):
-            conn = CacheConnect.valkey_connect()
+            conn = CacheConnect.valkey_connect(self)
             self.assertIsNone(conn)
 
     def test_valkey_connect_connection_error(self):
         with patch("valkey.cluster.ValkeyCluster", side_effect=ValkeyConnectionError):
-            conn = CacheConnect.valkey_connect()
+            conn = CacheConnect.valkey_connect(self)
             self.assertIsNone(conn)
 
     def test_valkey_connect_unexpected_error(self):
         with patch("valkey.cluster.ValkeyCluster", side_effect=Exception):
-            conn = CacheConnect.valkey_connect()
+            conn = CacheConnect.valkey_connect(self)
             self.assertIsNone(conn)
