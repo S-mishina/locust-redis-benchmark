@@ -33,6 +33,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
+      - name: Run pytest
+        run: |
+          python -m pytest cache_benchmark/tests
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
