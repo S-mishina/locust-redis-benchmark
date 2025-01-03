@@ -6,6 +6,28 @@ on:
       - main
 
 jobs:
+  test:
+    runs-on: ubuntu-20.04
+    permissions:
+      packages: write
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: pip install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r redis-benchmark/requirements.txt
+
+      - name: Run pytest
+        run: |
+          python -m pytest cache_benchmark/tests
+
   deploy:
     runs-on: ubuntu-20.04
     permissions:
@@ -32,10 +54,6 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('redis-benchmark/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-
-      - name: Run pytest
-        run: |
-          python -m pytest cache_benchmark/tests
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
