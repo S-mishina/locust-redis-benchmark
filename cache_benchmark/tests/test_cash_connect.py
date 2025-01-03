@@ -2,6 +2,10 @@ import os
 from unittest.mock import patch, Mock
 import unittest
 from cache_benchmark.cash_connect import CacheConnect
+from redis.exceptions import TimeoutError, ConnectionError
+from redis.cluster import ClusterDownError
+from valkey.cluster import ClusterDownError as ValkeyClusterDownError
+from valkey.exceptions import ConnectionError as ValkeyConnectionError, TimeoutError as ValkeyTimeoutError
 
 class TestCashConnect(unittest.TestCase):
     def setUp(self):
