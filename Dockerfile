@@ -9,3 +9,4 @@ RUN <<EOF
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 EOF
+USER no-root
