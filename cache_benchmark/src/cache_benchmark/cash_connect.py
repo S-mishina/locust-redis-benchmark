@@ -6,7 +6,7 @@ import os
 import logging
 
 class CacheConnect:
-    def redis_connect():
+    def redis_connect(self):
         """
         Initializes a connection to the Redis cluster.
         
@@ -50,7 +50,7 @@ class CacheConnect:
             conn = None
         return conn
 
-    def valkey_connect():
+    def valkey_connect(self):
         """
         Initializes a connection to the Valley cluster.
 
