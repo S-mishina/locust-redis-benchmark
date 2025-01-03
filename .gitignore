@@ -1,2 +1,12 @@
 py-env/*
-
+/.pytest_cache/
+/bin
+include/
+lib/
+.readthedocs.yml
+pyvenv.cfg
+__pycache__/
+*.pyc
+build/
+dist/
+src/*.egg-info/
