@@ -1,7 +1,7 @@
 import os
 from unittest.mock import patch, Mock
 import unittest
-from cache_benchmark.cash_connect import *
+from cache_benchmark.cash_connect import valkey_connect, redis_connect
 
 class TestCashConnect(unittest.TestCase):
     def setUp(self):
