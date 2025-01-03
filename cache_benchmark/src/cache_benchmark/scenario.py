@@ -3,7 +3,7 @@ import os
 import logging
 from locust import HttpUser, TaskSet, task, between
 from cache_benchmark.locust_cache import LocustCache
-from cache_benchmark.utils import *
+from cache_benchmark.utils import generate_string
 import random
 import time
 
