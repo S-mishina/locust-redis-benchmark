@@ -78,6 +78,7 @@ def set_env_vars(args):
     os.environ["VALUE_SIZE"] = str(args.value_size)
     os.environ["TTL"] = str(args.ttl)
     os.environ["CONNECTIONS_POOL"] = str(args.connections_pool)
+    os.environ["SSL"] = bool(args.ssl)
 
 def locust_runner_cash_benchmark(args,RedisUser):
     env = Environment(user_classes=[RedisUser])

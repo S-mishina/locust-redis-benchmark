@@ -18,6 +18,13 @@ def add_common_arguments(parser):
         help="Specify the port of the Redis server (default: 6379)."
     )
     group.add_argument(
+        "--ssl", "-x",
+        type=bool,
+        required=False,
+        default=False,
+        help="Use SSL for the connection."
+    )
+    group.add_argument(
         "--hit-rate", "-r",
         type=float,
         required=False,
