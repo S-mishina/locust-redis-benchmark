@@ -2,8 +2,6 @@ name: deploy workflow
 
 on:
   push:
-    branches:
-      - main
 
 jobs:
   test:
@@ -36,6 +34,7 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}/cache_benchmark/src
 
   deploy:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-20.04
     permissions:
       packages: write
