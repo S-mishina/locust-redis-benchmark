@@ -35,7 +35,7 @@ class TestUtils(unittest.TestCase):
         ttl = 60
         cache_client.get.return_value = None
         cache_client.set.return_value = True
-        result = init_cache_set(cache_client, value, ttl)
+        init_cache_set(cache_client, value, ttl)
         self.assertEqual(cache_client.set.call_count, 999)
         self.assertEqual(cache_client.get.call_count, 999)
 
