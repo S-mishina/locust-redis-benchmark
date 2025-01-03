@@ -89,11 +89,11 @@ def set_env_cache_retry(args):
     os.environ["cache_retry"] = str(args.cache_retry)
     os.environ["cache_retry_delay"] = str(args.cache_retry_delay)
 
-def locust_runner_cash_benchmark(args,RedisUser):
-    env = Environment(user_classes=[RedisUser])
+def locust_runner_cash_benchmark(args,redisUser):
+    env = Environment(user_classes=[redisUser])
     env.events.request.add_listener(lambda **kwargs: stats_printer(env.stats))
     runner = LocalRunner(env)
-    RedisUser.host = f"http://{args.fqdn}:{args.port}"
+    redisUser.host = f"http://{args.fqdn}:{args.port}"
     gevent.spawn(stats_printer(env.stats))
     locust.events.init.fire(environment=env,cache_type="valkey_cluster")
     runner.start(user_count=args.connections, spawn_rate=args.spawn_rate)
