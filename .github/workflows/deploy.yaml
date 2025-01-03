@@ -32,6 +32,8 @@ jobs:
       - name: Run pytest
         run: |
           python -m pytest cache_benchmark/tests
+        env:
+          PYTHONPATH: /locust-cache-benchmark/cache_benchmark/src
 
   deploy:
     runs-on: ubuntu-20.04
