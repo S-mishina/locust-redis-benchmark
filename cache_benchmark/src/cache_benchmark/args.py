@@ -25,6 +25,13 @@ def add_common_arguments(parser):
         help="Use SSL for the connection."
     )
     group.add_argument(
+        "--query-timeout", "-q",
+        type=int,
+        required=False,
+        default=1,
+        help="Specify the query timeout in seconds (default: 1)."
+    )
+    group.add_argument(
         "--hit-rate", "-r",
         type=float,
         required=False,

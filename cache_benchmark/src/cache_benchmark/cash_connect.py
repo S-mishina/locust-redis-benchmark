@@ -17,6 +17,7 @@ class CacheConnect:
         redis_port = os.environ.get("REDIS_PORT")
         connections_pool = os.environ.get("CONNECTIONS_POOL")
         ssl = os.environ.get("SSL")
+        query_timeout = os.environ.get("QUERY_TIMEOUT")
         logging.info(f"Connecting to Redis cluster at {redis_host}:{redis_port} with {connections_pool} connections.")
 
         if not redis_host or not redis_port or not connections_pool:
@@ -30,7 +31,7 @@ class CacheConnect:
             conn = RedisCluster(
                 startup_nodes=startup_nodes,
                 decode_responses=True,
-                timeout=2,
+                timeout=int(query_timeout),
                 ssl=bool(ssl),
                 max_connections=int(connections_pool),
                 ssl_cert_reqs=None,
@@ -59,6 +60,8 @@ class CacheConnect:
         redis_host = os.environ.get("REDIS_HOST")
         redis_port = os.environ.get("REDIS_PORT")
         connections_pool = os.environ.get("CONNECTIONS_POOL")
+        ssl = os.environ.get("SSL")
+        query_timeout = os.environ.get("QUERY_TIMEOUT")
         logging.info(f"Connecting to Valley cluster at {redis_host}:{redis_port} with {connections_pool} connections.")
         if not redis_host or not redis_port or not connections_pool:
             logging.error("Environment variables REDIS_HOST, REDIS_PORT, and CONNECTIONS_POOL must be set.")
@@ -70,8 +73,8 @@ class CacheConnect:
             conn = ValkeyCluster(
                 startup_nodes=startup_nodes,
                 decode_responses=True,
-                timeout=2,
-                ssl=False,
+                timeout=int(query_timeout),
+                ssl=bool(ssl),
                 max_connections=int(connections_pool),
                 ssl_cert_reqs=None,
             )
