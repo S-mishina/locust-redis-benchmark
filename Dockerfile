@@ -9,6 +9,3 @@ RUN <<EOF
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 EOF
-
-RUN useradd -m no-root
-USER no-root
