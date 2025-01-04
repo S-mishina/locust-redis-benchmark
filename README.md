@@ -65,13 +65,13 @@ docker pull ghcr.io/s-mishina/locust-redis-benchmark:latest
 To initialize a Redis cluster, run the following command:
 
 ```sh
-python cache-benchmark/src/cache-benchmark/main.py init redis -f <hostname> -p <port>
+locust_cache_benchmark init redis -f <hostname> -p <port>
 ```
 
 To execute a load test on a Redis cluster, use the command:
 
 ```sh
-python cache-benchmark/src/cache-benchmark/main.py loadtest redis -f <hostname> -p <port> -r <hit_rate> -d <duration> -c <connections> -n <requests> -k <value_size> -t <ttl>
+locust_cache_benchmark loadtest redis -f <hostname> -p <port> -r <hit_rate> -d <duration> -c <connections> -n <requests> -k <value_size> -t <ttl>
 ```
 
 ### Container
@@ -79,13 +79,13 @@ python cache-benchmark/src/cache-benchmark/main.py loadtest redis -f <hostname> 
 To initialize a Redis cluster, use the following command:
 
 ```sh
-docker run --rm -it ghcr.io/s-mishina/locust-redis-benchmark:latest python cache-benchmark/src/cache-benchmark/main.py init redis -f <hostname> -p <port>
+docker run --rm -it ghcr.io/s-mishina/locust-redis-benchmark:latest locust_cache_benchmark init redis -f <hostname> -p <port>
 ```
 
 To execute a load test on a Redis cluster, run:
 
 ```sh
-docker run --rm -it ghcr.io/s-mishina/locust-redis-benchmark:latest python cache-benchmark/src/cache-benchmark/main.py loadtest redis -f <hostname> -p <port> -r <hit_rate> -d <duration> -c <connections> -n <requests> -k <value_size> -t <ttl>
+docker run --rm -it ghcr.io/s-mishina/locust-redis-benchmark:latest locust_cache_benchmark loadtest redis -f <hostname> -p <port> -r <hit_rate> -d <duration> -c <connections> -n <requests> -k <value_size> -t <ttl>
 ```
 
 ## Parameters
