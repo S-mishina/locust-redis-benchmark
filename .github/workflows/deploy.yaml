@@ -2,6 +2,12 @@ name: deploy workflow
 
 on:
   push:
+    paths:
+      - 'cache_benchmark/src/**'
+      - 'cache_benchmark/tests/**'
+      - 'cache_benchmark/requirements.txt'
+      - '.github/workflows/**'
+      - 'setup.py'
 
 jobs:
   test:

@@ -58,7 +58,7 @@ Build and run the Docker container using the command below:
 docker pull ghcr.io/s-mishina/locust-redis-benchmark:latest
 ```
 
-## Usage
+## Usage (Sample)
 
 ### Local Machine
 
