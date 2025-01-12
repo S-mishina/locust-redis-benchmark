@@ -14,13 +14,14 @@ logging.basicConfig(level=logging.DEBUG)
 
 @locust.events.init.add_listener
 def on_locust_init(environment, **kwargs):
+    cache = CacheConnect()
     if kwargs.get('cache_type'):
         if kwargs.get('cache_type') == "redis_cluster":
             logger.info("Locust environment redis_conn initialized.")
-            environment.cache_conn = CacheConnect.redis_connect()
+            environment.cache_conn = cache.redis_connect()
         elif kwargs.get('cache_type') == "valkey_cluster":
             logger.info("Locust environment valkey_conn initialized.")
-            environment.cache_conn = CacheConnect.valkey_connect()
+            environment.cache_conn = cache.valkey_connect()
 
 
 def redis_load_test(args):
@@ -36,7 +37,8 @@ def valkey_load_test(args):
 def init_valkey_load_test(args):
     set_env_vars(args)
     set_env_cache_retry(args)
-    cache_client = CacheConnect.valkey_connect()
+    cache = CacheConnect()
+    cache_client = cache.valkey_connect()
     if cache_client is None:
         logger.error("Redis client initialization failed.")
         sys.exit(1)
@@ -46,7 +48,8 @@ def init_valkey_load_test(args):
 def init_redis_load_test(args):
     set_env_vars(args)
     set_env_cache_retry(args)
-    cache_client = CacheConnect.redis_connect()
+    cache = CacheConnect()
+    cache_client = cache.redis_connect()
     if cache_client is None:
         logger.error("Redis client initialization failed.")
         sys.exit(1)
