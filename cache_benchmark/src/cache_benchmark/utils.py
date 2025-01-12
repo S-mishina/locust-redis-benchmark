@@ -78,7 +78,7 @@ def set_env_vars(args):
     os.environ["VALUE_SIZE"] = str(args.value_size)
     os.environ["TTL"] = str(args.ttl)
     os.environ["CONNECTIONS_POOL"] = str(args.connections_pool)
-    os.environ["SSL"] = args.ssl
+    os.environ["SSL"] = str(args.ssl)
 def set_env_cache_retry(args):
     """
     Sets the environment variables for the cache.
@@ -86,8 +86,8 @@ def set_env_cache_retry(args):
     Args:
         args (Namespace): Command-line arguments.
     """
-    os.environ["cache_retry"] = str(args.cache_retry)
-    os.environ["cache_retry_delay"] = str(args.cache_retry_delay)
+    # os.environ["cache_retry"] = str(args.cache_retry)
+    # os.environ["cache_retry_delay"] = str(args.cache_retry_delay)
 
 def locust_runner_cash_benchmark(args,redisuser):
     env = Environment(user_classes=[redisuser])

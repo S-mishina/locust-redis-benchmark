@@ -2,6 +2,7 @@ from redis.cluster import RedisCluster, ClusterDownError, ClusterNode
 from redis.exceptions import TimeoutError, ConnectionError
 from valkey.cluster import ValkeyCluster as ValkeyCluster, ClusterNode as ValleyClusterNode, ClusterDownError as ValkeyClusterDownError
 from valkey.exceptions import ConnectionError as ValkeyConnectionError, TimeoutError as ValkeyTimeoutError
+from distutils.util import strtobool
 import os
 import logging
 
@@ -18,7 +19,11 @@ class CacheConnect:
         connections_pool = os.environ.get("CONNECTIONS_POOL")
         ssl = os.environ.get("SSL")
         query_timeout = os.environ.get("QUERY_TIMEOUT")
-        logging.info(f"Connecting to Redis cluster at {redis_host}:{redis_port} with {connections_pool} connections.")
+        logging.info(redis_host)
+        logging.info(redis_port)
+        logging.info(connections_pool)
+        logging.info(ssl)
+        logging.info(f"Connecting to Redis cluster at {redis_host}:{redis_port} with {connections_pool} connections SSL={ssl}.")
 
         if not redis_host or not redis_port or not connections_pool:
             logging.error("Environment variables REDIS_HOST, REDIS_PORT, and CONNECTIONS_POOL must be set.")
@@ -31,8 +36,8 @@ class CacheConnect:
             conn = RedisCluster(
                 startup_nodes=startup_nodes,
                 decode_responses=True,
-                timeout=int(query_timeout),
-                ssl=bool(ssl),
+                timeout=query_timeout,
+                ssl=bool(strtobool(ssl)),
                 max_connections=int(connections_pool),
                 ssl_cert_reqs=None,
             )
@@ -73,8 +78,8 @@ class CacheConnect:
             conn = ValkeyCluster(
                 startup_nodes=startup_nodes,
                 decode_responses=True,
-                timeout=int(query_timeout),
-                ssl=bool(ssl),
+                timeout=query_timeout,
+                ssl=bool(strtobool(ssl)),
                 max_connections=int(connections_pool),
                 ssl_cert_reqs=None,
             )
