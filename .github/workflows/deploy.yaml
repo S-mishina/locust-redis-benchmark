@@ -42,8 +42,11 @@ jobs:
           locust_cache_benchmark init redis -f 127.0.0.1 -p 7100 --ssl False && \
           locust_cache_benchmark loadtest redis -f 127.0.0.1 -p 7100 -r 0.5 -d 30 -c 1 -n 1 -k 1 -t 60 --ssl False
 
-      # - name: output test result upload
-      #   uses: actions/upload-artifact@v4
+      - name: output test result upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2etest-redis
+          path: redis_test_results.csv
 
 
   unittest:
