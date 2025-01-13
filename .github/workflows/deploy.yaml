@@ -39,12 +39,10 @@ jobs:
         run: |
           docker-compose up -d
 
-      - name: Run E2E test redis setup
+      - name: Run E2E test
         run: |
-          locust_cache_benchmark init redis -f 127.0.0.1 -p 7100 --ssl False
-
-      - name: Run E2E test redis loadtest
-        run: |
+          docker-compose up -d && \
+          locust_cache_benchmark init redis -f 127.0.0.1 -p 7100 --ssl False && \
           locust_cache_benchmark loadtest redis -f 127.0.0.1 -p 7100 -r 0.5 -d 60 -c 100 -n 100 -k 1 -t 60 --ssl False
 
   unittest:
