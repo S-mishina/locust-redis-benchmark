@@ -69,8 +69,8 @@ jobs:
         run: |
           docker-compose up -d && \
           sleep 60 && \
-          locust_cache_benchmark init "${{ inputs.cache-platform }}" -f "${{ inputs.cache-host }}" -p "${{ inputs.cache-port }} --ssl "${{ inputs.cache-ssl }}" && \
-          locust_cache_benchmark loadtest "${{ inputs.cache-platform }}" -f "${{ inputs.cache-host }}" -p ${{ inputs.cache-port }} -r ${{ inputs.cache-hit-rate }} -d ${{ inputs.loadtest-duration }} -c 1 -n 1 -k 1 -t 60 --ssl "${{ inputs.cache-ssl }}"
+          locust_cache_benchmark init ${{ inputs.cache-platform }} -f ${{ inputs.cache-host }} -p ${{ inputs.cache-port }} --ssl ${{ inputs.cache-ssl }} && \
+          locust_cache_benchmark loadtest ${{ inputs.cache-platform }} -f ${{ inputs.cache-host }} -p ${{ inputs.cache-port }} -r ${{ inputs.cache-hit-rate }} -d ${{ inputs.loadtest-duration }} -c 1 -n 1 -k 1 -t 60 --ssl ${{ inputs.cache-ssl }}
 
       - name: output test result upload
         uses: actions/upload-artifact@v4
