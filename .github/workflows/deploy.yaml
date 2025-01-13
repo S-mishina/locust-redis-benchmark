@@ -14,7 +14,11 @@ jobs:
     uses: ./.github/workflows/e2etest.yaml
     with:
       cache-platform: 'redis'
-
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
 
   unittest:
     runs-on: ubuntu-24.04
