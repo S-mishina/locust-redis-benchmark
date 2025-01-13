@@ -1,0 +1,78 @@
+name: End-to-end tests
+
+on:
+  workflow_call:
+    inputs:
+      cache-platform:
+        required: true
+        type: string
+        description: 'redis or vallky'
+      cache-version:
+        required: false
+        type: string
+        description: 'version of the cache'
+      cache-host:
+        required: false
+        type: string
+        default: '127.0.0.1'
+        description: 'host of the cache'
+      cache-port:
+        required: false
+        type: number
+        default: 7100
+        description: 'port of the cache'
+      cache-hit-rate:
+        required: false
+        type: number
+        default: 0.5
+        description: 'hit rate of the cache'
+      cache-ssl:
+        required: false
+        type: boolean
+        default: False
+        description: 'True or False'
+      loadtest-duration:
+        required: false
+        type: number
+        default: 30
+        description: 'duration of the load test'
+      
+
+jobs:
+  e2etest-redis:
+    runs-on: ubuntu-24.04
+    permissions:
+      packages: write
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Compose
+        run: sudo apt-get update && sudo apt-get install -y docker-compose
+
+      - name: Set up Python
+        uses: actions/setup-python@v5.3.0
+        with:
+          python-version: 3.12.0
+
+      - name: pip install
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
+
+      - name: Run E2E test
+        run: |
+          docker-compose up -d && \
+          sleep 60 && \
+          locust_cache_benchmark init "${{ inputs.cache-platform }}" -f "${{ inputs.cache-host }}" -p "${{ inputs.cache-port }} --ssl "${{ inputs.cache-ssl }}" && \
+          locust_cache_benchmark loadtest "${{ inputs.cache-platform }}" -f "${{ inputs.cache-host }}" -p ${{ inputs.cache-port }} -r ${{ inputs.cache-hit-rate }} -d ${{ inputs.loadtest-duration }} -c 1 -n 1 -k 1 -t 60 --ssl "${{ inputs.cache-ssl }}"
+
+      - name: output test result upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2etest-"${{ inputs.cache-platform }}"
+          path: redis_test_results.csv
