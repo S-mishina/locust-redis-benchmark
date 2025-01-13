@@ -93,7 +93,7 @@ jobs:
       contents: read
       attestations: write
       id-token: write
-    needs: test
+    needs: unittest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
