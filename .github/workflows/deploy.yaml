@@ -35,10 +35,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install .
 
-      - name: Redis cluster
-        run: |
-          docker-compose up -d
-
       - name: Run E2E test
         run: |
           docker-compose up -d && \
