@@ -75,5 +75,5 @@ jobs:
       - name: output test result upload
         uses: actions/upload-artifact@v4
         with:
-          name: e2etest-"${{ inputs.cache-platform }}"
+          name: e2etest-${{ inputs.cache-platform }}
           path: redis_test_results.csv
