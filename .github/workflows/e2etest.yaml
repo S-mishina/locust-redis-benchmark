@@ -6,7 +6,7 @@ on:
       cache-platform:
         required: true
         type: string
-        description: 'redis or vallky'
+        description: 'Redis or Valkey'
       cache-version:
         required: false
         type: string
@@ -65,9 +65,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install .
 
-      - name: Run E2E test
+      - name: Run E2E test for Redis
+        if: ${{ github.event.inputs.cache-platform == 'redis' }}
         run: |
-          docker-compose up -d && \
+          docker-compose up -f docker-compose-${{ inputs.cache-platform }}.yaml -d && \
+          sleep 60 && \
+          locust_cache_benchmark init ${{ inputs.cache-platform }} -f ${{ inputs.cache-host }} -p ${{ inputs.cache-port }} --ssl ${{ inputs.cache-ssl }} && \
+          locust_cache_benchmark loadtest ${{ inputs.cache-platform }} -f ${{ inputs.cache-host }} -p ${{ inputs.cache-port }} -r ${{ inputs.cache-hit-rate }} -d ${{ inputs.loadtest-duration }} -c 1 -n 1 -k 1 -t 60 --ssl ${{ inputs.cache-ssl }}
+
+      - name: Run E2E test for Vallky
+        if: ${{ github.event.inputs.cache-platform == 'valkey' }}
+        run: |
+          docker-compose up -f docker-compose-${{ inputs.cache-platform }}.yaml -d && \
           sleep 60 && \
           locust_cache_benchmark init ${{ inputs.cache-platform }} -f ${{ inputs.cache-host }} -p ${{ inputs.cache-port }} --ssl ${{ inputs.cache-ssl }} && \
           locust_cache_benchmark loadtest ${{ inputs.cache-platform }} -f ${{ inputs.cache-host }} -p ${{ inputs.cache-port }} -r ${{ inputs.cache-hit-rate }} -d ${{ inputs.loadtest-duration }} -c 1 -n 1 -k 1 -t 60 --ssl ${{ inputs.cache-ssl }}

@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  valkey-master:
+    image: bitnami/valkey-cluster
+    container_name: valkey-master
+    environment:
+      - VALKEY_MODE=master
+      - ALLOW_EMPTY_PASSWORD=yes
+      - VALKEY_NODES=valkey-master,valkey-worker-1,valkey-worker-2
+    ports:
+      - "7200:7200"
+
+  valkey-worker-1:
+    image: bitnami/valkey-cluster
+    container_name: valkey-worker-1
+    environment:
+      - VALKEY_MODE=worker
+      - VALKEY_MASTER_HOST=valkey-master
+      - ALLOW_EMPTY_PASSWORD=yes
+      - VALKEY_NODES=valkey-master,valkey-worker-1,valkey-worker-2
+
+  valkey-worker-2:
+    image: bitnami/valkey-cluster
+    container_name: valkey-worker-2
+    environment:
+      - VALKEY_MODE=worker
+      - VALKEY_MASTER_HOST=valkey-master
+      - ALLOW_EMPTY_PASSWORD=yes
+      - VALKEY_NODES=valkey-master,valkey-worker-1,valkey-worker-2
