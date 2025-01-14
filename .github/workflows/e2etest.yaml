@@ -66,7 +66,7 @@ jobs:
           pip install .
 
       - name: Run E2E test for Redis
-        if: ${{ github.event.inputs.cache-platform == 'redis' }}
+        if: ${{ inputs.cache-platform == 'redis' }}
         run: |
           docker-compose up -f docker-compose-${{ inputs.cache-platform }}.yaml -d && \
           sleep 60 && \
