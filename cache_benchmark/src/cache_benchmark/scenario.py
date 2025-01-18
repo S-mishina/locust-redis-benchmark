@@ -1,7 +1,7 @@
 import hashlib
 import os
 import logging
-from locust import HttpUser, TaskSet, task, between
+from locust import User, TaskSet, task, between
 from cache_benchmark.locust_cache import LocustCache
 from cache_benchmark.utils import generate_string
 import random
@@ -43,7 +43,7 @@ class RedisTaskSet(TaskSet):
                 value = generate_string(os.environ.get("VALUE_SIZE"))
                 LocustCache.locust_redis_set(self, self.user.environment.cache_conn, hash_key , value , "dummy", ttl)
 
-class RedisUser(HttpUser):
+class RedisUser(User):
     tasks = [RedisTaskSet]
     wait_time = between(1, 1)
     host = os.environ.get("REDIS_HOST")
