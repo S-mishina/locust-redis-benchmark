@@ -1,3 +1,6 @@
+from gevent import monkey
+monkey.patch_all()
+
 import hashlib
 import os
 import logging
@@ -6,7 +9,6 @@ from cache_benchmark.locust_cache import LocustCache
 from cache_benchmark.utils import generate_string
 import random
 import time
-
 
 class RedisTaskSet(TaskSet):
     total_requests = 0
