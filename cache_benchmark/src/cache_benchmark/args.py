@@ -102,10 +102,17 @@ def add_common_arguments(parser):
         help="Specify the number of keys to set in the cache (default: 1000). ※init redis only parameter"
     )
     group.add_argument(
+        "--cluster-mode", "-cm",
+        type=str,
+        required=False,
+        default=None,
+        help="Run the test in cluster mode. master or worker"
+    )
+    group.add_argument(
         "--master-bind-host", "-mbh",
         type=str,
         required=False,
-        default="localhost",
+        default="127.0.0.1",
         help="Specify the hostname of the master node (default: localhost)."
     )
     group.add_argument(

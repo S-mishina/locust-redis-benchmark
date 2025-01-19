@@ -3,10 +3,10 @@ import os
 import logging
 import gevent
 from locust.env import Environment
-from locust.runners import LocalRunner
+from locust.runners import LocalRunner , MasterRunner, WorkerRunner
 import locust
 from locust.stats import stats_printer
-
+import time
 logger = logging.getLogger(__name__)
 
 def generate_string(size_in_kb):
@@ -111,7 +111,7 @@ def locust_master_runner_benchmark(args, redisuser):
     env = Environment(user_classes=[redisuser])
     locust.events.init.fire(environment=env, cache_type="valkey_cluster")
 
-    runner = MasterRunner(env, master_bind_host=args.fqdn, master_bind_port=args.port)
+    runner = MasterRunner(env, master_bind_host=args.master_bind_host, master_bind_port=args.master_bind_port)
     env.events.request.add_listener(lambda **kwargs: stats_printer(env.stats))
 
     gevent.spawn(stats_printer, env.stats)
@@ -120,13 +120,14 @@ def locust_master_runner_benchmark(args, redisuser):
 
     while len(runner.clients) < args.num_workers:
         logger.info(f"Waiting for workers... ({len(runner.clients)}/{args.num_workers} connected)")
-        sleep(1)
+        time.sleep(1)
 
     logger.info(f"All {args.num_workers} workers are connected. Starting the load test...")
 
     logger.info("Master is waiting for workers...")
     runner.start(user_count=args.connections, spawn_rate=args.spawn_rate)
     logger.info("Starting Locust load test in Master mode...")
+    stats_printer(env.stats)
     gevent.sleep(args.duration)
     runner.quit()
     logger.info("Load test completed.")
