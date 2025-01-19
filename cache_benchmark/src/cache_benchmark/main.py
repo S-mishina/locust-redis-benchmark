@@ -46,6 +46,10 @@ def cluster_redis_load_test(args):
         set_env_vars(args)
         set_env_cache_retry(args)
         locust_worker_runner_benchmark(args,RedisUser)
+    else:
+        logger.error("Invalid cluster mode provided.")
+        logger.error("Please provide the --cluster-mode. master or worker")
+        sys.exit(1)
 
 def init_valkey_load_test(args):
     set_env_vars(args)
@@ -111,7 +115,7 @@ def main():
     add_common_arguments(init_valkey_parser)
     init_valkey_parser.set_defaults(func=init_valkey_load_test)
 
-    args = parser.parse_args()  # ここでargsを定義
+    args = parser.parse_args()
     if args.command and args.subcommand:
         args.func(args)
 if __name__ == "__main__":
