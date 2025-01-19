@@ -9,6 +9,7 @@ from locust.stats import stats_printer
 import time
 
 logger = logging.getLogger(__name__)
+
 logging.basicConfig(level=logging.DEBUG)
 
 def generate_string(size_in_kb):
@@ -113,12 +114,12 @@ def locust_master_runner_benchmark(args, redisuser):
     env = Environment(user_classes=[redisuser])
     env.events.request.add_listener(lambda **kwargs: stats_printer(env.stats))
     runner = MasterRunner(env, master_bind_host=args.master_bind_host, master_bind_port=args.master_bind_port)
-    gevent.spawn(stats_printer, env.stats)
     locust.events.init.fire(environment=env, cache_type="valkey_cluster")
     logging.info("Master is waiting for workers to connect...")
     while len(runner.clients) < args.num_workers:
         logging.info(f"Waiting for workers... ({len(runner.clients)}/{args.num_workers} connected)")
         time.sleep(1)
+    gevent.spawn(stats_printer(env.stats))
     logging.info(f"All {args.num_workers} workers are connected. Starting the load test...")
     runner.start(user_count=args.connections, spawn_rate=args.spawn_rate)
     stats_printer(env.stats)
