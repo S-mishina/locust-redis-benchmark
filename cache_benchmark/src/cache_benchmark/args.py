@@ -101,3 +101,24 @@ def add_common_arguments(parser):
         default=1000,
         help="Specify the number of keys to set in the cache (default: 1000). ※init redis only parameter"
     )
+    group.add_argument(
+        "--master-bind-host", "-mbh",
+        type=str,
+        required=False,
+        default="localhost",
+        help="Specify the hostname of the master node (default: localhost)."
+    )
+    group.add_argument(
+        "--master-bind-port", "-mbp",
+        type=int,
+        required=False,
+        default=5557,
+        help="Specify the port of the master node (default: 5557)."
+    )
+    group.add_argument(
+        "--num-workers", "-nw",
+        type=int,
+        required=False,
+        default=1,
+        help="Specify the number of workers to connect to the master node (default: 1)."
+    )

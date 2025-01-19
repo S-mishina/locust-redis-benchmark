@@ -103,3 +103,47 @@ def locust_runner_cash_benchmark(args,redisuser):
     runner.quit()
     logger.info("Load test completed.")
     save_results_to_csv(env.stats, filename="redis_test_results.csv")
+
+def locust_master_runner_benchmark(args, redisuser):
+    """
+    Run Locust in Master mode.
+    """
+    env = Environment(user_classes=[redisuser])
+    locust.events.init.fire(environment=env, cache_type="valkey_cluster")
+
+    runner = MasterRunner(env, master_bind_host=args.fqdn, master_bind_port=args.port)
+    env.events.request.add_listener(lambda **kwargs: stats_printer(env.stats))
+
+    gevent.spawn(stats_printer, env.stats)
+
+    logger.info("Master is waiting for workers to connect...")
+
+    while len(runner.clients) < args.num_workers:
+        logger.info(f"Waiting for workers... ({len(runner.clients)}/{args.num_workers} connected)")
+        sleep(1)
+
+    logger.info(f"All {args.num_workers} workers are connected. Starting the load test...")
+
+    logger.info("Master is waiting for workers...")
+    runner.start(user_count=args.connections, spawn_rate=args.spawn_rate)
+    logger.info("Starting Locust load test in Master mode...")
+    gevent.sleep(args.duration)
+    runner.quit()
+    logger.info("Load test completed.")
+    save_results_to_csv(env.stats, filename="redis_test_results_master.csv")
+
+
+def locust_worker_runner_benchmark(args, redisuser):
+    """
+    Run Locust in Worker mode.
+    """
+    env = Environment(user_classes=[redisuser])
+    locust.events.init.fire(environment=env, cache_type="valkey_cluster")
+
+    runner = WorkerRunner(env, master_host=args.master_bind_host, master_port=args.master_bind_port)
+
+    logger.info(f"Worker connecting to Master at {args.master_bind_host}:{args.master_bind_port}...")
+    runner.greenlet.join()
+
+    logger.info("Worker load test completed.")
+
